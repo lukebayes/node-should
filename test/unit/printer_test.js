@@ -248,7 +248,6 @@ var FakePrinter = require('fake_printer').FakePrinter;
 
 (function printerDisplaysTestDurations() {
   var p = new FakePrinter();
-  //p.showDurationDetails = true;
   p.start();
   p._testSuccessHandler({label: 'abcd', duration: 1});
   p._testSuccessHandler({label: 'efgh', duration: 87});

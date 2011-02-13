@@ -7,11 +7,14 @@ var Printer = function() {
   this.ignored = [];
   this.length = 0;
   this.out = process.stdout;
-  this.showDurationDetails = true;
   this.started = false;
   this.startedAt = null;
   this.succeeded = [];
   this.tests = []
+
+  // This value can be turned off for a more 
+  // terse test summary:
+  this.showDurationDetails = true;
 }
 
 Printer.prototype.start = function() {
