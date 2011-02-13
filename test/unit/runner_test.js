@@ -1,6 +1,8 @@
 
 require('../common');
 var assert = require('assert');
+var printer = require('fake_printer');
+var runFilesMatching = require('node_should/runner').runFilesMatching;
 
-console.log(">> RUNNER TEST INStantiated!");
+assert.ok(runFilesMatching instanceof Function);
 

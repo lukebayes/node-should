@@ -3,6 +3,12 @@
 var path = require('path');
 var assert = require('assert');
 
+assert.match = function(regexp, string) {
+  if(!string.match(regexp)) {
+    assert.fail('Unable to match ' + regexp + ' in: ' + string);
+  }
+}
+
 exports.testDir = path.dirname(__filename);
 exports.fixturesDir = path.join(exports.testDir, 'fixtures');
 exports.libDir = path.join(exports.testDir, '../lib');
@@ -44,12 +50,12 @@ process.on('exit', function() {
   if (global.DTRACE_HTTP_SERVER_RESPONSE) {
     knownGlobals.push(DTRACE_HTTP_SERVER_RESPONSE);
     knownGlobals.push(DTRACE_HTTP_SERVER_REQUEST);
-    knownGlobals.push(DTRACE_HTTP_CLIENT_RESPONSE);
-    knownGlobals.push(DTRACE_HTTP_CLIENT_REQUEST);
+    //knownGlobals.push(DTRACE_HTTP_CLIENT_RESPONSE);
+    //knownGlobals.push(DTRACE_HTTP_CLIENT_REQUEST);
     knownGlobals.push(DTRACE_NET_STREAM_END);
     knownGlobals.push(DTRACE_NET_SERVER_CONNECTION);
-    knownGlobals.push(DTRACE_NET_SOCKET_READ);
-    knownGlobals.push(DTRACE_NET_SOCKET_WRITE);
+    //knownGlobals.push(DTRACE_NET_SOCKET_READ);
+    //knownGlobals.push(DTRACE_NET_SOCKET_WRITE);
   }
 
   for (var x in global) {

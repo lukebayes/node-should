@@ -1,16 +1,26 @@
-var Context = require('node_unit/context').Context;
-var TerminalPrinter = require('node_unit/terminal_printer').TerminalPrinter;
-var readEachFileMatching = require('node_unit/utils').readEachFileMatching;
+
+function runFilesMatching(expr, path, printers, completeHandler) {
+  console.log(">> run called!");
+}
+
+function runFile(file, printers, completeHandler) {
+}
+
+exports.runFilesMatching = runFilesMatching;
+
+/*
+//var Context = require('node_unit/context').Context;
+//var TerminalPrinter = require('node_unit/terminal_printer').TerminalPrinter;
+var readEachFileMatching = require('node_should/utils').readEachFileMatching;
 
 DEFAULT_EXPRESSION = /_test.js$/;
 DEFAULT_PATH       = './test';
-DEFAULT_PRINTERS   = [new TerminalPrinter()];
-
-var TestRunner = function() {
+//DEFAULT_PRINTERS   = [new TerminalPrinter()];
+var Runner = function() {
   this.contexts = [];
 }
 
-TestRunner.prototype.start = function(expr, path, printers) {
+Runner.prototype.start = function(expr, path, printers) {
   printers = (printers) ? printers : DEFAULT_PRINTERS;
   expr = (expr) ? expr : DEFAULT_EXPRESSION;
   path = (path) ? path : DEFAULT_PATH;
@@ -26,7 +36,7 @@ TestRunner.prototype.start = function(expr, path, printers) {
   }, 10);
 }
 
-TestRunner.prototype.addContext = function(file, content, printers) {
+Runner.prototype.addContext = function(file, content, printers) {
   var context = new Context();
   context.printers = printers;
   this.contexts.push(context);
@@ -34,5 +44,6 @@ TestRunner.prototype.addContext = function(file, content, printers) {
   return context;
 }
 
-exports.TestRunner = TestRunner;
+exports.Runner = Runner;
+*/
 
