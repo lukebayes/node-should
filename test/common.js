@@ -2,12 +2,7 @@
 
 var path = require('path');
 var assert = require('assert');
-
-assert.match = function(regexp, string) {
-  if(!string.match(regexp)) {
-    assert.fail('Unable to match ' + regexp + ' in: ' + string);
-  }
-}
+require('assert_match');
 
 exports.testDir = path.dirname(__filename);
 exports.fixturesDir = path.join(exports.testDir, 'fixtures');
