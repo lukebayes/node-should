@@ -1,7 +1,7 @@
 
 require('../common');
 var assert = require('assert');
-var Printer = require('node_should/printer').Printer;
+var Printer = require('node_should').Printer;
 var FakePrinter = require('fake_printer').FakePrinter;
 
 /* Construction */
