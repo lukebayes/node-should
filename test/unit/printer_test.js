@@ -34,7 +34,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   assert.throws(function() {
-    p.testSuccessHandler();
+    p._testSuccessHandler();
   }, /must be preceeded by start/);
 })();
 
@@ -42,7 +42,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
 
   assert.match(/^\./gm, p.out.message);
@@ -53,10 +53,10 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
 
   var message = p.out.message;
@@ -98,13 +98,13 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
   p.testFailureHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.testFailureHandler();
   p.testFailureHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
 
   var message = p.out.message;
@@ -145,10 +145,10 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
   p.testFailureHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
 
   p.testErrorHandler();
 
@@ -156,7 +156,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   p.testFailureHandler();
 
   p.testErrorHandler(); 
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
 
   var message = p.out.message;
@@ -190,10 +190,10 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
+  p._testSuccessHandler();
   p.testFailureHandler();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
 
   p.testIgnoreHandler({message: 'ignore message a'});
 
@@ -201,7 +201,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   p.testFailureHandler();
 
   p.testIgnoreHandler({message: 'ignore message b'});
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
 
   var message = p.out.message;
@@ -235,7 +235,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   var p = new FakePrinter();
   //p.out = process.stdout;
   p.start();
-  p.testSuccessHandler();
+  p._testSuccessHandler();
   p.finish();
   assert.equal(1, p.length);
 
@@ -244,3 +244,28 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.match(/Test Count: 1, OK: 1, Failures: 0, Errors: 0, Ignored: 0/, message);
 })();
 
+/* Durations */
+
+(function printerDisplaysTestDurations() {
+  var p = new FakePrinter();
+  p.showDurationDetails = true;
+  p.start();
+  p._testSuccessHandler({label: 'abcd', duration: 1});
+  p._testSuccessHandler({label: 'efgh', duration: 87});
+  p._testSuccessHandler({label: 'mnop', duration: 34});
+  p._testSuccessHandler({label: 'ijkl', duration: 34});
+  p._testSuccessHandler({label: 'qrst', duration: 242});
+  p._testSuccessHandler();
+  p._testSuccessHandler();
+  p.finish();
+  
+  var message = p.out.message;
+  //console.log(message);
+
+  // Ensure that the list is present, AND sorted:
+  assert.match(/ 242 ms : qrst.*\n.*efgh/gm, message);
+  assert.match(/  87 ms : efgh.*\n.*mnop/gm, message);
+  assert.match(/  34 ms : mnop.*\n.*ijkl/gm, message);
+  assert.match(/  34 ms : ijkl.*\n.*abcd/gm, message);
+  assert.match(/   1 ms : abcd/gm, message);
+})();

@@ -2,14 +2,16 @@
 var INTRO_COPY = '\'Node Should\' by Luke Bayes\n\n';
 
 var Printer = function() {
+  this.errored = [];
+  this.failed = [];
+  this.ignored = [];
+  this.length = 0;
   this.out = process.stdout;
+  this.showDurationDetails = true;
   this.started = false;
   this.startedAt = null;
   this.succeeded = [];
-  this.failed = [];
-  this.errored = [];
-  this.ignored = [];
-  this.length = 0;
+  this.tests = []
 }
 
 Printer.prototype.start = function() {
@@ -25,7 +27,7 @@ Printer.prototype.finish = function() {
   this._printFinish();
 }
 
-Printer.prototype.testSuccessHandler = function(test) {
+Printer.prototype._testSuccessHandler = function(test) {
   this._addSuccess(test);
 }
 
@@ -73,6 +75,7 @@ Printer.prototype._addSuccess = function(test) {
   if (!this.started) throw 'Printer.testSuccessHandler() must be preceeded by start().';
   this._printSuccess('.');
   this.succeeded.push(test);
+  this.tests.push(test);
   this._incrementLength();
 }
 
@@ -80,6 +83,7 @@ Printer.prototype._addFailure = function(assertionFailure) {
   if (!this.started) throw 'Printer.testFailureHandler() must be preceeded by start().';
   this._printFailure('F');
   this.failed.push(assertionFailure);
+  this.tests.push(assertionFailure);
   this._incrementLength();
 }
 
@@ -87,6 +91,7 @@ Printer.prototype._addError = function(error) {
   if (!this.started) throw 'Printer.testErrorHandler() must be preceeded by start().';
   this._printError('E');
   this.errored.push(error);
+  this.tests.push(error);
   this._incrementLength();
 }
 
@@ -118,6 +123,7 @@ Printer.prototype._printFinish = function() {
   this._printIgnoreDetails();
   this._printDuration();
   this._printSummary();
+  this._printDurationDetails();
 }
 
 Printer.prototype._printSummary = function() {
@@ -126,6 +132,7 @@ Printer.prototype._printSummary = function() {
   this._printFailure('Failures: ' + this.failed.length + ', ');
   this._printError('Errors: ' + this.errored.length + ', ');
   this._printIgnore('Ignored: ' + this.ignored.length);
+  this._printInfo('\n');
   this._printInfo('\n');
 }
 
@@ -164,8 +171,45 @@ Printer.prototype._printIgnoreDetails = function() {
       self._printIgnore('\n');
     }
   });
-  if(this.ignored.length > 0) {
+  if (this.ignored.length > 0) {
     self._printIgnore('\n');
+  }
+}
+
+Printer.prototype._insertLeadingSpaces = function(num, charCount) {
+  var str = num.toString();
+  var len = str.length;
+  if(len < charCount) {
+    for (var i = len; i < charCount; i++) {
+      str = ' ' + str;
+    }
+  }
+  return str;
+}
+
+Printer.prototype._printDurationDetails = function() {
+  if (this.showDurationDetails) {
+    var self = this;
+    var items = this.tests.filter(function(test) {
+      if(test && test.duration != null && test.label) {
+        return test;
+      }
+      return null;
+    }).sort(function(a, b) {
+      if(a.duration > b.duration) {
+        return -1;
+      } else if(a.duration < b.duration) {
+          return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    
+    items.forEach(function(test) {
+      var durationLabel = self._insertLeadingSpaces(test.duration, 6);
+      self._printInfo(durationLabel + ' ms : ' + test.label + '\n');
+    });
   }
 }
 
