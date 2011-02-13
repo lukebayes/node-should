@@ -1,8 +1,9 @@
-// This file found in nodejs test module:
+// This file found in nodejs test module, but added minor modifications here.
 
 var path = require('path');
 var assert = require('assert');
 require('assert_match');
+require('assert_same');
 
 exports.testDir = path.dirname(__filename);
 exports.fixturesDir = path.join(exports.testDir, 'fixtures');

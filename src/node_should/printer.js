@@ -1,6 +1,4 @@
 
-var INTRO_COPY = '\'Node Should\' by Luke Bayes\n\n';
-
 var Printer = function() {
   this.errored = [];
   this.failed = [];
@@ -115,7 +113,7 @@ Printer.prototype._getDuration = function() {
 }
 
 Printer.prototype._printStart = function() {
-  this._printInfo(INTRO_COPY);
+  this._printInfo('\'Node Should\' by Luke Bayes\n\n');
 }
 
 Printer.prototype._printFinish = function() {
