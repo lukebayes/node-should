@@ -2,10 +2,9 @@ var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
 var Stack = require('node_should/stack').Stack;
 
 /**
- * Composite Iterator enables asynchronous, depth-first traversal of a
- * structure of any size.
+ * Composite Iterator enables synchronous or asynchronous, depth-first 
+ * traversal of a tree structure of any size or depth.
  */
-
 var CompositeIterator = function(composite) {
   this.root = composite;
   this.iteratorStack = new Stack();

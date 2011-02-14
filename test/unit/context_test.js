@@ -216,7 +216,29 @@ require('../common');
   assert.ok(failure);
 })();
 
-(function contextCapturesAsyncExceptions() {
+(function contextHandlesMultipleAsyncsInSameCall() {
+  var executed = [];
+  var c = new Context();
+  c.addTestHandler(function() {
+    setTimeout(this.async(function() {
+      executed.push('one');
+    }), 0);
+    setTimeout(this.async(function() {
+      executed.push('two');
+    }), 0);
+    setTimeout(this.async(function() {
+      executed.push('three');
+    }), 0);
+  });
+  
+  c.execute(function() {
+    //console.log(executed.length);
+    assert.equal(3, executed.length);
+    //assert.ok(false);
+  });
+})();
+
+(function contextCapturesAssertionErrors() {
   var failure = null;
   var c = new Context();
   c.addListener('failure', function(f) {

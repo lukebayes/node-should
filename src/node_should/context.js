@@ -1,6 +1,8 @@
 
 var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
 var Composite = require('node_should/composite').Composite;
+
+var AssertionError = require('assert').AssertionError;
 var util = require('util');
 
 var Context = function(label) {
@@ -52,12 +54,10 @@ Context.prototype._getTestExecutionOptions = function(iterator) {
         options.asyncHandlers++;
         return function() {
           options.asyncHandlers--;
-          try {
-            callback.call(options.scope);
-          } catch (e) {
-            self._onFailure(e);
+          if (options.asyncHandlers == 0) {
+            self._callHandler(callback, options.scope);
+            self._executeNextSetupOrTestOrTeardown(options);
           }
-          self._executeNextSetupOrTestOrTeardown(options);
         }
       }
     }
@@ -85,6 +85,7 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
 
   // Add a custom handler to trigger complete handler
   // after all tests have finished:
+  //throw 'this fails silently whent the complete handler throws an assertion exception!';
   handlers.push(function() {
     if (completeHandler) {
       completeHandler();
@@ -98,16 +99,21 @@ Context.prototype._onFailure = function(error) {
   this.emit('failure', error);
 }
 
+Context.prototype._callHandler = function(handler, scope) {
+  try {
+    handler.call(scope);
+  } catch (e) {
+    if (e instanceof AssertionError) {
+      this._onFailure(e);
+    }
+  }
+}
+
 Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
   var itr = options.iterator;
 
   if (itr.hasNext()) {
-    var handler = itr.next();
-    try {
-      handler.call(options.scope);
-    } catch (e) {
-      this._onFailure(e);
-    }
+    this._callHandler(itr.next(), options.scope);
     if(options.asyncHandlers == 0) {
       this._executeNextSetupOrTestOrTeardown(options);
     }

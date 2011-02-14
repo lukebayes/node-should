@@ -8,6 +8,7 @@ var util = require('util');
  * arbitrarily large and deep part-whole hiearchies.
  */
 var Composite = function() {
+  EventEmitter.call(this);
   this.parent = null;
   this.children = [];
   this.numChildren = 0;
