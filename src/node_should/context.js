@@ -54,8 +54,8 @@ Context.prototype._getTestExecutionOptions = function(iterator) {
         options.asyncHandlers++;
         return function() {
           options.asyncHandlers--;
+          self._callHandler(callback, options.scope);
           if (options.asyncHandlers == 0) {
-            self._callHandler(callback, options.scope);
             self._executeNextSetupOrTestOrTeardown(options);
           }
         }
@@ -85,10 +85,13 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
 
   // Add a custom handler to trigger complete handler
   // after all tests have finished:
-  //throw 'this fails silently whent the complete handler throws an assertion exception!';
   handlers.push(function() {
     if (completeHandler) {
-      completeHandler();
+      // break out of the try..catch
+      // that wraps test methods:
+      setTimeout(function() {
+        completeHandler();
+      }, 0);
     }
   });
 
@@ -105,6 +108,8 @@ Context.prototype._callHandler = function(handler, scope) {
   } catch (e) {
     if (e instanceof AssertionError) {
       this._onFailure(e);
+    } else {
+      throw e
     }
   }
 }

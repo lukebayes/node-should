@@ -3,8 +3,9 @@ var Context = require('node_should/context').Context;
 var assert = require('assert');
 require('../common');
 
-/* Configuration */
+// Configuration
 
+/*
 (function contextIsInstantiable() {
   var c = new Context();
 })();
@@ -85,7 +86,7 @@ require('../common');
   assert.equal('SomeClass', child1.getLabel());
 })();
 
-/* Execution */
+// Execution
 
 (function contextFailsToExecuteIfNoTests() {
   var c = new Context();
@@ -216,6 +217,23 @@ require('../common');
   assert.ok(failure);
 })();
 
+(function contextCapturesAssertionErrors() {
+  var failure = null;
+  var c = new Context();
+  c.addListener('failure', function(f) {
+    failure = f;
+  });
+  c.addTestHandler(function() {
+    setTimeout(this.async(function() {
+      assert.ok(false, 'should be false');
+    }), 0);
+  });
+  c.execute(function() {
+    assert.ok(failure);
+  });
+})();
+*/
+
 (function contextHandlesMultipleAsyncsInSameCall() {
   var executed = [];
   var c = new Context();
@@ -232,24 +250,10 @@ require('../common');
   });
   
   c.execute(function() {
-    //console.log(executed.length);
     assert.equal(3, executed.length);
-    //assert.ok(false);
+    assert.equal(executed[0], 'one');
+    assert.equal(executed[1], 'two');
+    assert.equal(executed[2], 'three');
   });
 })();
 
-(function contextCapturesAssertionErrors() {
-  var failure = null;
-  var c = new Context();
-  c.addListener('failure', function(f) {
-    failure = f;
-  });
-  c.addTestHandler(function() {
-    setTimeout(this.async(function() {
-      assert.ok(false, 'should be false');
-    }), 0);
-  });
-  c.execute(function() {
-    assert.ok(failure);
-  });
-})();
