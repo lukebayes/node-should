@@ -199,7 +199,14 @@ require('../common');
   c.execute(function() {
     assert.equal(6, executed.length);
   });
+})();
 
+(function contextCapturesExceptions() {
+  var c = new Context();
+  c.addTestHandler(function() {
+    assert.ok(false);
+  });
+  c.execute();
 
 })();
 
