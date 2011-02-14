@@ -1,5 +1,7 @@
 var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
 var CompositeIterator = require('node_should/composite_iterator').CompositeIterator;
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
 
 /**
  * Composite is an abstract base class that provides support for building
@@ -10,6 +12,8 @@ var Composite = function() {
   this.children = [];
   this.numChildren = 0;
 }
+
+util.inherits(Composite, EventEmitter);
 
 Composite.prototype.addChild = function(child) {
   if (!child) throw 'Composite.addChild requires a child, like: addChild(child).';

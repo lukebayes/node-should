@@ -201,12 +201,33 @@ require('../common');
   });
 })();
 
-(function contextCapturesExceptions() {
+(function contextCapturesAssertionExceptions() {
+  var failure = null;
   var c = new Context();
-  c.addTestHandler(function() {
-    assert.ok(false);
+  c.addListener('failure', function(f) {
+    failure = f;
   });
-  c.execute();
 
+  c.addTestHandler(function() {
+    assert.ok(false, 'should be false');
+  });
+
+  c.execute();
+  assert.ok(failure);
 })();
 
+(function contextCapturesAsyncExceptions() {
+  var failure = null;
+  var c = new Context();
+  c.addListener('failure', function(f) {
+    failure = f;
+  });
+  c.addTestHandler(function() {
+    setTimeout(this.async(function() {
+      assert.ok(false, 'should be false');
+    }), 0);
+  });
+  c.execute(function() {
+    assert.ok(failure);
+  });
+})();

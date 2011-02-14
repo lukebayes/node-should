@@ -1,6 +1,6 @@
 
-var Composite = require('node_should/composite').Composite;
 var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
+var Composite = require('node_should/composite').Composite;
 var util = require('util');
 
 var Context = function(label) {
@@ -38,7 +38,7 @@ Context.prototype._executeAllTests = function(testIterator) {
   // Initiate all tests immediately:
   while (testIterator.hasNext()) {
     var options = this._getTestExecutionOptions(testIterator.next());
-    this._executeNextSetupTestOrTeardown(options);
+    this._executeNextSetupOrTestOrTeardown(options);
   }
 }
 
@@ -52,8 +52,12 @@ Context.prototype._getTestExecutionOptions = function(iterator) {
         options.asyncHandlers++;
         return function() {
           options.asyncHandlers--;
-          callback.call(options.scope);
-          self._executeNextSetupTestOrTeardown(options);
+          try {
+            callback.call(options.scope);
+          } catch (e) {
+            self._onFailure(e);
+          }
+          self._executeNextSetupOrTestOrTeardown(options);
         }
       }
     }
@@ -90,15 +94,22 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
   return new ArrayIterator(testHandlerList);
 }
   
+Context.prototype._onFailure = function(error) {
+  this.emit('failure', error);
+}
 
-Context.prototype._executeNextSetupTestOrTeardown = function(options) {
+Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
   var itr = options.iterator;
 
   if (itr.hasNext()) {
     var handler = itr.next();
-    handler.call(options.scope);
+    try {
+      handler.call(options.scope);
+    } catch (e) {
+      this._onFailure(e);
+    }
     if(options.asyncHandlers == 0) {
-      this._executeNextSetupTestOrTeardown(options);
+      this._executeNextSetupOrTestOrTeardown(options);
     }
   }
 }
