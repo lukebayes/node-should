@@ -30,6 +30,38 @@ Context.prototype.addTestHandler = function(handler) {
 
 Context.prototype.execute = function(completeHandler) {
   if (this._testHandlers.length == 0) throw 'Context.execute called with no tests.';
+  var testIterator = this._createTestHandlerIterator(completeHandler);
+  this._executeAllTests(testIterator);
+}
+
+Context.prototype._executeAllTests = function(testIterator) {
+  // Initiate all tests immediately:
+  while (testIterator.hasNext()) {
+    var options = this._getTestExecutionOptions(testIterator.next());
+    this._executeNextSetupTestOrTeardown(options);
+  }
+}
+
+Context.prototype._getTestExecutionOptions = function(iterator) {
+  var self = this;
+  var options = {
+    asyncHandlers : 0,
+    iterator : iterator,
+    scope : { 
+      async : function(callback) {
+        options.asyncHandlers++;
+        return function() {
+          options.asyncHandlers--;
+          callback.call(options.scope);
+          self._executeNextSetupTestOrTeardown(options);
+        }
+      }
+    }
+  }
+  return options;
+}
+
+Context.prototype._createTestHandlerIterator = function(completeHandler) {
   var setupHandlers = this._getSetupHandlers();
   var testHandlers = this._testHandlers;
   var teardownHandlers = this._teardownHandlers;
@@ -46,44 +78,27 @@ Context.prototype.execute = function(completeHandler) {
     handlers = handlers.concat(teardownHandlers.slice(0));
     testHandlerList.push(new ArrayIterator(handlers));
   });
-  
-  var testsToComplete = testHandlerList.length;
-  var testsCompleted = 0;
-  var perTestCompleteHandler = function() {
-    console.log(">> checking " + testsCompleted + " and : " + testsToComplete);
-    if (testsCompleted++ >= testsToComplete) {
-      completeHandler.call(this);
-    }
-  }
 
-  var self = this;
-  // Initiate all tests immediately:
-  var testIterator = new ArrayIterator(testHandlerList);
-  while (testIterator.hasNext()) {
-    var scope = {
-      pendingAsyncs: 0,
-      async: function(callback) {
-        scope.pendingAsyncs++;
-        
-        return function() {
-          scope.pendingAsyncs--;
-          callback.apply(scope, arguments);
-          if (scope.pendingAsyncs == 0) {
-            self._executeNextSetupTestOrTeardown(testIterator.next(), scope, perTestCompleteHandler);
-          }
-        }
-      }
+  // Add a custom handler to trigger complete handler
+  // after all tests have finished:
+  handlers.push(function() {
+    if (completeHandler) {
+      completeHandler();
     }
-    this._executeNextSetupTestOrTeardown(testIterator.next(), scope, perTestCompleteHandler);
-  }
+  });
+
+  return new ArrayIterator(testHandlerList);
 }
+  
 
-Context.prototype._executeNextSetupTestOrTeardown = function(iterator, scope, completeHandler) {
-  if (iterator.hasNext()) {
-    var handler = iterator.next();
-    handler.call(scope);
-    if (scope.pendingAsyncs == 0) {
-      this._executeNextSetupTestOrTeardown(iterator, scope);
+Context.prototype._executeNextSetupTestOrTeardown = function(options) {
+  var itr = options.iterator;
+
+  if (itr.hasNext()) {
+    var handler = itr.next();
+    handler.call(options.scope);
+    if(options.asyncHandlers == 0) {
+      this._executeNextSetupTestOrTeardown(options);
     }
   }
 }

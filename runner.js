@@ -7,6 +7,8 @@ require('unit/context_test')
 require('unit/runner_test')
 require('unit/printer_test')
 
-console.log('\n');
-console.log('Tests Complete');
+process.on('exit', function() {
+  console.log('\n');
+  console.log('>> Tests Complete');
+});
 

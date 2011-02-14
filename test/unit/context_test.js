@@ -153,14 +153,14 @@ require('../common');
   assert.notStrictEqual(firstScope, secondScope);
 })();
 
-/*
 (function contextRunsSetupAsynchronouslyIfRequested() {
   var executed = [];
-  var c = new Context('SomeClass');
+  var c = new Context();
   c.addSetupHandler(function() {
-    setTimeout(this.async(function() {
+    var asyncHandler = this.async(function() {
       executed.push('asyncsetup');
-    }), 0);
+    });
+    setTimeout(asyncHandler, 0);
   });
   c.addTestHandler(function() {
     executed.push('test');
@@ -171,4 +171,35 @@ require('../common');
     assert.equal('test', executed[1]);
   });
 })();
-*/
+
+(function contextRunsTestAsynchronously() {
+  var executed = [];
+  var c = new Context();
+  c.addSetupHandler(function() {
+    setTimeout(this.async(function() {
+      executed.push('asyncsetup');
+    }), 0);
+  });
+  c.addTestHandler(function() {
+    setTimeout(this.async(function() {
+      executed.push('asynctest1');
+    }), 0);
+  });
+  c.addTestHandler(function() {
+    setTimeout(this.async(function() {
+      executed.push('asynctest2');
+    }), 0);
+  });
+  c.addTeardownHandler(function() {
+    setTimeout(this.async(function() {
+      executed.push('asyncteardown');
+    }), 0);
+  });
+
+  c.execute(function() {
+    assert.equal(6, executed.length);
+  });
+
+
+})();
+
