@@ -5,7 +5,6 @@ require('../common');
 
 // Configuration
 
-/*
 (function contextIsInstantiable() {
   var c = new Context();
 })();
@@ -232,7 +231,6 @@ require('../common');
     assert.ok(failure);
   });
 })();
-*/
 
 (function contextHandlesMultipleAsyncsInSameCall() {
   var executed = [];
