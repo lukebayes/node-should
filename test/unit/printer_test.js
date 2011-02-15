@@ -83,7 +83,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   try {
     assert.fail(null, 'fake actual value', 'fake expected value', '!=', 'foo');
   } catch (failure) { 
-    p._testFailureHandler(failure);
+    p._testFailureHandler({failure: failure});
   }
   p.finish();
 

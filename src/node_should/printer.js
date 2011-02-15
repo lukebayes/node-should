@@ -169,9 +169,9 @@ Printer.prototype._printDuration = function() {
 
 Printer.prototype._printFailureDetails = function() {
   var self = this;
-  this.failed.forEach(function(failure) {
-    if (failure) {
-      self._printFailure(failure.stack);
+  this.failed.forEach(function(test) {
+    if (test && test.failure) {
+      self._printFailure(test.failure.stack);
       self._printFailure('\n');
       self._printFailure('\n');
     }

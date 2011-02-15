@@ -37,6 +37,9 @@ Context.prototype.addTeardownHandler = function(handler) {
  */
 Context.prototype.addTestHandler = function(label, handler) {
   this._cleanHandlerArguments(arguments);
+  if (this.getLabel() != '') {
+    label = [this.getLabel(), 'should', label].join(' ');
+  }
   this._testHandlers.push({ handler: handler, label: label });
   // TODO(lukebayes) Probably shouldn't set label here, it's doing work that
   // isn't necessary, and will only be used in cases of failure?
@@ -74,17 +77,13 @@ Context.prototype.addTestHandler = function(label, handler) {
  *   # b: A
  */
 Context.prototype._cleanHandlerArguments = function(args) {
-  var label = this.getLabel();
   var handler = null;
   if (args.length == 0) throw 'The handler provided to Context.addTestHandler (or addSetupHandler, addTeardownHandler) must not be null';
 
   if (args.length == 1) {
     if (typeof(args[0]) != 'function') throw 'A handler must be sent to the add___ method'
     args[1] = args[0];
-    args[0] = label;
-  } else if (args.length == 2) {
-    args[0] = [label, 'should', args[0]].join(' ');
-    return;
+    args[0] = '';
   }
 }
 
@@ -267,7 +266,7 @@ Context.prototype.getLabel = function() {
   if (this.parent) {
     var parentLabel = this.parent.getLabel();
     if (parentLabel != '') {
-      labelParts.push(parentLabel);
+      labelParts.unshift(parentLabel);
     }
   }
   if (this._label != '') {
