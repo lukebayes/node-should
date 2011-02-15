@@ -239,8 +239,8 @@ require('../common');
 (function contextCapturesRuntimeErrors() {
   var error = null;
   var c = new Context('SomeClass');
-  c.addListener('error', function(e) {
-    error = e;
+  c.addListener('error', function(test) {
+    error = test.error;
   });
   c.addTestHandler('do something', function() {
     throw 'unknown application error';
@@ -253,8 +253,8 @@ require('../common');
 (function contextSetupErrorsIncludeHelpfulLabel() {
   var error = null;
   var c = new Context('OtherClass');
-  c.addListener('error', function(e) {
-    error = e;
+  c.addListener('error', function(test) {
+    error = test.error;
   });
   c.addSetupHandler(function() {
     throw 'unknown setup error';
@@ -294,8 +294,8 @@ require('../common');
   c.addTestHandler('accept argument', function() {
     assert.ok(false);
   });
-  c.addListener('failure', function(e) {
-    assert.match(/SomeClass should accept argument/, e.message);
+  c.addListener('failure', function(test) {
+    assert.match(/SomeClass should accept argument/, test.failure.message);
   });
   c.execute();
 })();
@@ -305,8 +305,8 @@ require('../common');
   c.addTestHandler(function() {
     assert.ok(false);
   });
-  c.addListener('failure', function(e) {
-    assert.match(/SomeClass/, e.stack);
+  c.addListener('failure', function(test) {
+    assert.match(/SomeClass/, test.failure.stack);
   });
   c.execute();
 })();

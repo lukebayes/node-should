@@ -194,12 +194,14 @@ Context.prototype._callHandler = function(handlerData, scope) {
       if (failureLabel) {
         e.message = failureLabel + '\n' + e.message;
       }
-      this._onFailure(e);
+      handlerData.failure = e;
+      this._onFailure(handlerData);
     } else {
       if (failureLabel) {
         e = new e.constructor(failureLabel + '\n' + e.toString());
       }
-      this._onError(e);
+      handlerData.error = e;
+      this._onError(handlerData);
     }
   }
 }
