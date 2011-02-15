@@ -255,3 +255,27 @@ require('../common');
   });
 })();
 
+// Failure Messages
+
+(function contextDisplaysHelpfulTestMessages() {
+  var c = new Context('SomeClass');
+  c.addTestHandler('accept argument', function() {
+    assert.ok(false);
+  });
+  c.addListener('failure', function(e) {
+    assert.match(/SomeClass should accept argument/, e.message);
+  });
+  c.execute();
+})();
+
+(function contextLabelShowsEvenIfNoTestLable() {
+  var c = new Context('SomeClass');
+  c.addTestHandler(function() {
+    assert.ok(false);
+  });
+  c.addListener('failure', function(e) {
+    assert.match(/SomeClass/, e.stack);
+  });
+  c.execute();
+})();
+

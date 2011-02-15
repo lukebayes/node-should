@@ -17,17 +17,69 @@ util.inherits(Context, Composite);
 
 Context.prototype.addSetupHandler = function(handler) {
   if (handler == null) throw 'The handler provided to Context.addSetupHandler must not be null';
-  this._setupHandlers.push(handler);
+  this._setupHandlers.push({ handler: handler });
 }
 
 Context.prototype.addTeardownHandler = function(handler) {
   if (handler == null) throw 'The handler provided to Context.addTeardownHandler must not be null';
-  this._teardownHandlers.push(handler);
+  this._teardownHandlers.push({ handler: handler });
 }
 
-Context.prototype.addTestHandler = function(handler) {
-  if (handler == null) throw 'The handler provided to Context.addTestHandler must not be null';
-  this._testHandlers.push(handler);
+/**
+ * Could be called with no label, but because of how the DSL feels, the optional
+ * argument belongs on the left.
+ */
+Context.prototype.addTestHandler = function(label, handler) {
+  this._cleanHandlerArguments(arguments);
+  this._testHandlers.push({ handler: handler, label: label });
+  // TODO(lukebayes) Probably shouldn't set label here, it's doing work that
+  // isn't necessary, and will only be used in cases of failure?
+}
+
+/**
+ * Will modify the provided arguments hash that may have a single handler argument,
+ * or a label, followed by a handler function. Regardless of how the args come in,
+ * they should be modified so that the zeroth element is a label and the first is
+ * a handler.
+ *
+ *    labelOrHandler:(String|Function), handler=null
+ *
+ * Should be transformed into:
+ *
+ *    label:String, handler:Function
+ *
+ * Note that by swapping the values in the indexes found on arguments,
+ * references to the args by name will also be swapped.
+ *
+ *   // Swaps a and b vars by swapping the values in arguments
+ *   // by index.
+ *   function foo(a, b) {
+ *     var bar = arguments[1];
+ *     arguments[1] = arguments[0];
+ *     arguments[0] = bar;
+ *     console.log("a: " + a);
+ *     console.log("b: " + b);
+ *   }
+ *
+ *   foo("A", "B");
+ *
+ *   # Outputs:
+ *   # a: B
+ *   # b: A
+ */
+Context.prototype._cleanHandlerArguments = function(args) {
+  var label = this.getLabel();
+  var handler = null;
+  if (args.length == 0) throw 'The handler provided to Context.addTestHandler (or addSetupHandler, addTeardownHandler) must not be null';
+
+  if (args.length == 1) {
+    if (typeof(args[0]) != 'function') throw 'A handler must be sent to the add___ method'
+    args[1] = args[0];
+    args[0] = label;
+  } else if (args.length == 2) {
+    args[0] = [label, 'should', args[0]].join(' ');
+    return;
+  }
 }
 
 Context.prototype.execute = function(completeHandler) {
@@ -98,15 +150,26 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
   return new ArrayIterator(testHandlerList);
 }
   
-Context.prototype._onFailure = function(error) {
-  this.emit('failure', error);
+Context.prototype._onFailure = function(failure) {
+  this.emit('failure', failure);
 }
 
-Context.prototype._callHandler = function(handler, scope) {
+Context.prototype._callHandler = function(handlerData, scope) {
+  var handler = null;
+  var failureLabel = null;
+  if (typeof(handlerData) == 'function') {
+    handler = handlerData;
+  } else {
+    handler = handlerData.handler;
+    failureLabel = handlerData.label;
+  }
   try {
     handler.call(scope);
   } catch (e) {
     if (e instanceof AssertionError) {
+      if (failureLabel) {
+        e.message = failureLabel + '\n' + e.message;
+      }
       this._onFailure(e);
     } else {
       throw e
