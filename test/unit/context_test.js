@@ -232,6 +232,18 @@ require('../common');
   });
 })();
 
+(function contextCapturesRuntimeErrors() {
+  var error = null;
+  var c = new Context('SomeClass');
+  c.addListener('error', function(e) {
+    error = e;
+  });
+  c.addTestHandler(function() {
+    throw 'unkown application error';
+  });
+  c.execute();
+})();
+
 (function contextHandlesMultipleAsyncsInSameCall() {
   var executed = [];
   var c = new Context();
