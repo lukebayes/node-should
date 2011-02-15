@@ -184,6 +184,10 @@ require('../common');
     setTimeout(this.async(function() {
       executed.push('asynctest1');
     }), 0);
+    // TODO(lukebayes) Problem with async tests:
+    // Make the previous line:
+    //}), 500);
+    // This fails!!!!!
   });
   c.addTestHandler(function() {
     setTimeout(this.async(function() {

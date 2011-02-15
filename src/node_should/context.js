@@ -128,9 +128,11 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
   // Each of these collections of methods will be executed in
   // a unique scope that is only shared by them.
   testHandlers.forEach(function(handlerData) {
-    handlers = self._getSetupHandlersForTest(handlerData.label);
+    handlers = [self._getTestStartedHandler(handlerData)];
+    handlers = handlers.concat(self._getSetupHandlersForTest(handlerData.label));
     handlers = handlers.concat([handlerData]);
     handlers = handlers.concat(self._getTeardownHandlersForTest(handlerData.label));
+    handlers.push(self._getTestCompletedHandler(handlerData));
     testHandlerList.push(new ArrayIterator(handlers));
   });
 
@@ -148,7 +150,26 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
 
   return new ArrayIterator(testHandlerList);
 }
-  
+
+Context.prototype._getTestStartedHandler = function(testHandlerData) {
+  return function() {
+    testHandlerData.startedAt = new Date();
+  }
+}
+
+Context.prototype._getTestCompletedHandler = function(testHandlerData) {
+  return function() {
+    var now = new Date();
+    var duration = now.getTime() - testHandlerData.startedAt.getTime();
+    //console.log('dur: ' + duration);
+    testHandlerData.duration = duration;
+  }
+}
+
+Context.prototype._onSuccess = function(testHandlerData) {
+  this.emit('success', testHandlerData);
+}
+
 Context.prototype._onFailure = function(failure) {
   this.emit('failure', failure);
 }
