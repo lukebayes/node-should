@@ -118,20 +118,19 @@ Context.prototype._getTestExecutionOptions = function(iterator) {
 }
 
 Context.prototype._createTestHandlerIterator = function(completeHandler) {
-  var setupHandlers = this._getSetupHandlers();
   var testHandlers = this._testHandlers;
-  var teardownHandlers = this._teardownHandlers;
 
+  var self = this;
   var testHandlerList = [];
   var handlers = null;
   // Build an array of arrays, each item is an array of all
   // setup methods, a single test method, and all teardowns.
   // Each of these collections of methods will be executed in
   // a unique scope that is only shared by them.
-  testHandlers.forEach(function(handler) {
-    handlers = setupHandlers.slice(0);
-    handlers = handlers.concat([handler]);
-    handlers = handlers.concat(teardownHandlers.slice(0));
+  testHandlers.forEach(function(handlerData) {
+    handlers = self._getSetupHandlersForTest(handlerData.label);
+    handlers = handlers.concat([handlerData]);
+    handlers = handlers.concat(self._getTeardownHandlersForTest(handlerData.label));
     testHandlerList.push(new ArrayIterator(handlers));
   });
 
@@ -154,6 +153,10 @@ Context.prototype._onFailure = function(failure) {
   this.emit('failure', failure);
 }
 
+Context.prototype._onError = function(error) {
+  this.emit('error', error);
+}
+
 Context.prototype._callHandler = function(handlerData, scope) {
   var handler = null;
   var failureLabel = null;
@@ -172,7 +175,10 @@ Context.prototype._callHandler = function(handlerData, scope) {
       }
       this._onFailure(e);
     } else {
-      throw e
+      if (failureLabel) {
+        e = new e.constructor(failureLabel + '\n' + e.toString());
+      }
+      this._onError(e);
     }
   }
 }
@@ -188,12 +194,40 @@ Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
   }
 }
 
-Context.prototype._getSetupHandlers = function() {
-  return this._setupHandlers;
+Context.prototype.getAllSetupHandlers = function() {
+  var handlers = this._setupHandlers.slice(0);
+  if (this.parent) {
+    handlers = handlers.concat(this.parent.getAllSetupHandlers());
+  }
+  return handlers;
 }
 
-Context.prototype._getTeardownHandlers = function() {
-  return this._teardownHandlers;
+Context.prototype.getAllTeardownHandlers = function() {
+  var handlers = this._teardownHandlers.slice(0);
+  if (this.parent) {
+    handlers = handlers.concat(this.parent.getAllTeardownHandlers());
+  }
+  return handlers;
+}
+
+Context.prototype._getSetupHandlersForTest = function(label) {
+  label = label + ' (setup)';
+  return this.getAllSetupHandlers()
+    .slice(0)
+    .map(function(handlerData) {
+      handlerData.label = label;
+      return handlerData;
+    });
+}
+
+Context.prototype._getTeardownHandlersForTest = function(label) {
+  label = label + ' (teardown)';
+  return this.getAllTeardownHandlers()
+    .slice(0)
+    .map(function(handlerData) {
+      handlerData.label = label;
+      return handlerData;
+    });
 }
 
 Context.prototype.getLabel = function() {

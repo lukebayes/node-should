@@ -238,10 +238,26 @@ require('../common');
   c.addListener('error', function(e) {
     error = e;
   });
-  c.addTestHandler(function() {
-    throw 'unkown application error';
+  c.addTestHandler('do something', function() {
+    throw 'unknown application error';
   });
   c.execute();
+  assert.match(/SomeClass should do something/, error.toString());
+  assert.match(/unknown application error/, error.toString());
+})();
+
+(function contextSetupErrorsIncludeHelpfulLabel() {
+  var error = null;
+  var c = new Context('OtherClass');
+  c.addListener('error', function(e) {
+    error = e;
+  });
+  c.addSetupHandler(function() {
+    throw 'unknown setup error';
+  });
+  c.addTestHandler('do something', function() {});
+  c.execute();
+  assert.match(/OtherClass should do something \(setup\)/, error.toString());
 })();
 
 (function contextHandlesMultipleAsyncsInSameCall() {
@@ -291,3 +307,32 @@ require('../common');
   c.execute();
 })();
 
+// Composite Setup and Teardown
+
+(function contextGrabsParentSetups() {
+  var executed = [];
+  var parent = new Context('SomeParent');
+  parent.addSetupHandler(function() {
+    executed.push('parentsetup');
+  });
+  parent.addTeardownHandler(function() {
+    executed.push('parentteardwon');
+  });
+  var child = new Context('with a child');
+  child.addSetupHandler(function() {
+    executed.push('childsetup');
+  });
+  child.addTeardownHandler(function() {
+    executed.push('childteardown');
+  });
+  child.addTestHandler('do something', function() {
+    executed.push('testmethod1');
+  });
+  child.addTestHandler('do something else', function() {
+    executed.push('testmethod2');
+  });
+
+  parent.addChild(child);
+  child.execute();
+  assert.equal(10, executed.length);
+})();
