@@ -2,15 +2,16 @@
 require('../common');
 var assert = require('assert');
 var Printer = require('node_should').Printer;
+var Context = require('node_should').Context;
 var FakePrinter = require('fake_printer').FakePrinter;
 
-/* Construction */
+// Construction
 
 (function printerIsInstantiable() {
   assert.ok(new Printer() != null);
 })();
 
-/* Start */
+// Start
 
 (function printerStartDisplaysExpectedText() {
   var p = new FakePrinter();
@@ -28,7 +29,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   }, /start already/);
 })();
 
-/* Success */
+// Success
 
 (function printerTestSucceededOnlyWorksAfterStart() {
   var p = new FakePrinter();
@@ -65,13 +66,13 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.equal(4, p.length);
 })();
 
-/* Failure */
+// Failure
 
 (function printerTestFailureOnlyWorksAfterStart() {
   var p = new FakePrinter();
   //p.out = process.stdout;
   assert.throws(function() {
-    p.testFailureHandler();
+    p._testFailureHandler();
   }, /must be preceeded by start/);
 })();
 
@@ -82,7 +83,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   try {
     assert.fail(null, 'fake actual value', 'fake expected value', '!=', 'foo');
   } catch (failure) { 
-    p.testFailureHandler(failure);
+    p._testFailureHandler(failure);
   }
   p.finish();
 
@@ -100,10 +101,10 @@ var FakePrinter = require('fake_printer').FakePrinter;
   p.start();
   p._testSuccessHandler();
   p._testSuccessHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
   p._testSuccessHandler();
-  p.testFailureHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
+  p._testFailureHandler();
   p._testSuccessHandler();
   p.finish();
 
@@ -113,13 +114,13 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.match(/Test Count: 7, OK: 4, Failures: 3, Errors: 0, Ignored: 0/, message);
 })();
 
-/* Error */
+// Error
 
 (function printerTestErrorOnlyWorksAfterStart() {
   var p = new FakePrinter();
   //p.out = process.stdout;
   assert.throws(function() {
-    p.testErrorHandler();
+    p._testErrorHandler();
   }, /must be preceeded by start/);
 })();
 
@@ -130,7 +131,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   try {
     throw new Error('fake error');
   } catch (err) {
-    p.testErrorHandler(err);
+    p._testErrorHandler({error: err});
   }
   p.finish();
 
@@ -147,15 +148,15 @@ var FakePrinter = require('fake_printer').FakePrinter;
   p.start();
   p._testSuccessHandler();
   p._testSuccessHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
   p._testSuccessHandler();
 
-  p.testErrorHandler();
+  p._testErrorHandler();
 
-  p.testFailureHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
+  p._testFailureHandler();
 
-  p.testErrorHandler(); 
+  p._testErrorHandler(); 
   p._testSuccessHandler();
   p.finish();
 
@@ -164,7 +165,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.equal(9, p.length);
 })();
 
-/* Ignore */
+// Ignore
 
 (function printerTestIgnoreOnlyWorksAfterStart() {
   var p = new FakePrinter();
@@ -192,13 +193,13 @@ var FakePrinter = require('fake_printer').FakePrinter;
   p.start();
   p._testSuccessHandler();
   p._testSuccessHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
   p._testSuccessHandler();
 
   p.testIgnoreHandler({message: 'ignore message a'});
 
-  p.testFailureHandler();
-  p.testFailureHandler();
+  p._testFailureHandler();
+  p._testFailureHandler();
 
   p.testIgnoreHandler({message: 'ignore message b'});
   p._testSuccessHandler();
@@ -211,8 +212,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.equal(9, p.length);
 })();
 
-
-/* Finish */
+// Finish
 
 (function printerFinishOnlyWorksIfStarted() {
   var p = new FakePrinter();
@@ -244,7 +244,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.match(/Test Count: 1, OK: 1, Failures: 0, Errors: 0, Ignored: 0/, message);
 })();
 
-/* Durations */
+// Durations
 
 (function printerDisplaysTestDurations() {
   var p = new FakePrinter();
@@ -267,4 +267,36 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.match(/  34 ms : mnop.*\n.*ijkl/gm, message);
   assert.match(/  34 ms : ijkl.*\n.*abcd/gm, message);
   assert.match(/   1 ms : abcd/gm, message);
+})();
+
+// addContext
+
+(function printerAcceptsFailingContext() {
+  var c = new Context('SomeClass');
+  c.addTestHandler('should do something', function() {
+    assert.ok(false, 'expected failure!');
+  });
+
+  var p = new FakePrinter();
+  p.start();
+  p.addContext(c);
+  c.execute();
+  p.finish();
+  var message = p.out.message;
+  assert.match(/Test Count: 1, OK: 0, Failures: 1, Errors: 0, Ignored: 0/, message);
+})();
+
+(function printerAcceptsPassingContext() {
+  var c = new Context('SomeClass');
+  c.addTestHandler('should do something', function() {
+    assert.ok(true);
+  });
+
+  var p = new FakePrinter();
+  p.start();
+  p.addContext(c);
+  c.execute();
+  p.finish();
+  var message = p.out.message;
+  assert.match(/Test Count: 1, OK: 1, Failures: 0, Errors: 0, Ignored: 0/, message);
 })();

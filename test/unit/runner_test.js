@@ -1,9 +1,18 @@
 
 require('../common');
+
 var assert = require('assert');
-var runFilesMatching = require('node_should/runner').runFilesMatching;
+var Runner = require('node_should/runner').Runner;
 var FakePrinter = require('fake_printer').FakePrinter;
 
-assert.ok(runFilesMatching instanceof Function);
+(function runnerCanBeInstantiated() {
+  var r = new Runner();
+})();
 
-//var printer = new FakePrinter();
+(function runnerCanLoadFiles() {
+  var r = new Runner();
+  r.run(/first.js/, 'test/fixtures', [new FakePrinter()], function() {
+    console.log(">> run files complete");
+  });
+})();
+

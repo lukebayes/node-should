@@ -1,5 +1,6 @@
 
 var Printer = function() {
+  this.contexts = [];
   this.errored = [];
   this.failed = [];
   this.ignored = [];
@@ -13,6 +14,20 @@ var Printer = function() {
   // This value can be turned off for a more 
   // terse test summary:
   this.showDurationDetails = true;
+}
+
+Printer.prototype.addContext = function(context) {
+  this.contexts.push(context);
+  var self = this;
+  context.addListener('success', function(test) {
+    self._testSuccessHandler(test);
+  });
+  context.addListener('failure', function(test) {
+    self._testFailureHandler(test);
+  });
+  context.addListener('error', function(test) {
+    self._testErrorHandler(test);
+  });
 }
 
 Printer.prototype.start = function() {
@@ -32,11 +47,11 @@ Printer.prototype._testSuccessHandler = function(test) {
   this._addSuccess(test);
 }
 
-Printer.prototype.testFailureHandler = function(assertionError) {
+Printer.prototype._testFailureHandler = function(assertionError) {
   this._addFailure(assertionError);
 }
 
-Printer.prototype.testErrorHandler = function(error) {
+Printer.prototype._testErrorHandler = function(error) {
   this._addError(error);
 }
 
@@ -80,19 +95,19 @@ Printer.prototype._addSuccess = function(test) {
   this._incrementLength();
 }
 
-Printer.prototype._addFailure = function(assertionFailure) {
+Printer.prototype._addFailure = function(test) {
   if (!this.started) throw 'Printer.testFailureHandler() must be preceeded by start().';
   this._printFailure('F');
-  this.failed.push(assertionFailure);
-  this.tests.push(assertionFailure);
+  this.failed.push(test);
+  this.tests.push(test);
   this._incrementLength();
 }
 
-Printer.prototype._addError = function(error) {
+Printer.prototype._addError = function(test) {
   if (!this.started) throw 'Printer.testErrorHandler() must be preceeded by start().';
   this._printError('E');
-  this.errored.push(error);
-  this.tests.push(error);
+  this.errored.push(test);
+  this.tests.push(test);
   this._incrementLength();
 }
 
@@ -155,9 +170,9 @@ Printer.prototype._printFailureDetails = function() {
 
 Printer.prototype._printErrorDetails = function() {
   var self = this;
-  this.errored.forEach(function(error) {
-    if (error) {
-      self._printError(error.stack);
+  this.errored.forEach(function(test) {
+    if (test && test.error) {
+      self._printError(test.error.stack);
       self._printError('\n');
       self._printError('\n');
     }

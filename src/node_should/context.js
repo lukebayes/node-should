@@ -15,6 +15,12 @@ var Context = function(label) {
 
 util.inherits(Context, Composite);
 
+Context.prototype.addExecutionHandler = function(label, handler) {
+  this._cleanHandlerArguments(arguments);
+  this._label = label;
+  handler.call(this);
+}
+
 Context.prototype.addSetupHandler = function(handler) {
   if (handler == null) throw 'The handler provided to Context.addSetupHandler must not be null';
   this._setupHandlers.push({ handler: handler });
@@ -158,11 +164,14 @@ Context.prototype._getTestStartedHandler = function(testHandlerData) {
 }
 
 Context.prototype._getTestCompletedHandler = function(testHandlerData) {
+  var self = this;
   return function() {
     var now = new Date();
     var duration = now.getTime() - testHandlerData.startedAt.getTime();
-    //console.log('dur: ' + duration);
     testHandlerData.duration = duration;
+    if (!testHandlerData.failure && !testHandlerData.error) {
+      self._onSuccess(testHandlerData);
+    }
   }
 }
 

@@ -1,49 +1,82 @@
 
-function runFilesMatching(expr, path, printers, completeHandler) {
-  console.log(">> run called!");
-}
+var Context = require('node_should/context').Context;
+var Printer = require('node_should/printer').Printer;
+var vm = require('vm');
+var readEachFileMatching = require('node_should/util').readEachFileMatching;
 
-function runFile(file, printers, completeHandler) {
-}
+var DEFAULT_EXPRESSION = /_test.js$/;
+var DEFAULT_PATH       = './test';
+var DEFAULT_PRINTERS   = [new Printer()];
 
-exports.runFilesMatching = runFilesMatching;
-
-/*
-//var Context = require('node_unit/context').Context;
-//var TerminalPrinter = require('node_unit/terminal_printer').TerminalPrinter;
-var readEachFileMatching = require('node_should/utils').readEachFileMatching;
-
-DEFAULT_EXPRESSION = /_test.js$/;
-DEFAULT_PATH       = './test';
-//DEFAULT_PRINTERS   = [new TerminalPrinter()];
 var Runner = function() {
-  this.contexts = [];
 }
 
-Runner.prototype.start = function(expr, path, printers) {
+Runner.prototype.run = function(expr, path, printers, completeHandler) {
   printers = (printers) ? printers : DEFAULT_PRINTERS;
+  // start provided printers:
+  printers.forEach(function(p) { p.start(); });
+
   expr = (expr) ? expr : DEFAULT_EXPRESSION;
   path = (path) ? path : DEFAULT_PATH;
   var self = this;
   readEachFileMatching(expr, path, function(err, file, content) {
     if (err) throw err;
-    self.addContext(file, content, printers);
+    self._runFileContent(file, content, printers);
   });
-  var intervalId = setInterval(function() {
-    if (printers[0].finished) {
-      clearInterval(intervalId);
-    }
-  }, 10);
 }
 
-Runner.prototype.addContext = function(file, content, printers) {
-  var context = new Context();
-  context.printers = printers;
-  this.contexts.push(context);
-  context.execute(file, content);
-  return context;
+Runner.prototype._runFileContent = function(file, content, printers, completeHandler) {
+  var scope = this._createScope(file, printers);
+  vm.runInNewContext(content, scope, file);
+}
+
+Runner.prototype._createScope = function(file, printers) {
+  var context = null;
+
+  var addPrintersToContext = function(c) {
+    printers.forEach(function(printer) {
+      printer.addContext(c);
+    });
+  }
+
+  var createContext = function() {
+    var c = new Context();
+    addPrintersToContext(c);
+    if (context == null) {
+      context = c;
+    } else {
+      context.addChild(c);
+      context = c;
+    }
+    c.addExecutionHandler.apply(c, arguments);
+    c.execute();
+    if (c.parent) {
+      context = c.parent;
+    }
+  }
+
+  return {
+    require: require,
+    console: console,
+    setInterval: setInterval,
+    setTimeout: setTimeout,
+    context: function() {
+      createContext.apply(this, arguments);
+    },
+    should: function() {
+      context.addTestHandler.apply(context, arguments);
+    },
+    setup: function() {
+      context.addSetupHandler.apply(context, arguments);
+    },
+    teardown: function() {
+      context.addTeardownHandler.apply(context, arguments);
+    },
+    ignore: function() {
+      console.log('Ignore not yet supported...');
+    },
+  }
 }
 
 exports.Runner = Runner;
-*/
 
