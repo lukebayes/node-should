@@ -3,6 +3,7 @@ var Printer = function() {
   this.contexts = [];
   this.errored = [];
   this.failed = [];
+  this.finished = false;
   this.ignored = [];
   this.length = 0;
   this.out = process.stdout;
@@ -30,6 +31,14 @@ Printer.prototype.addContext = function(context) {
   });
 }
 
+Printer.prototype.removeContext = function(context) {
+  var index = this.contexts.indexOf(context);
+  this.contexts.splice(index, 1);
+  if (this.contexts.length == 0) {
+    this.finish();
+  }
+}
+
 Printer.prototype.start = function() {
   if (this.started) throw 'Printer.start already called';
   this._printStart();
@@ -41,6 +50,7 @@ Printer.prototype.finish = function() {
   if (!this.started) throw 'Printer.finish() must be preceeded by start().';
   if (this.length == 0) throw 'Printer.finish() must be preceeded by at least one test result.';
   this._printFinish();
+  this.finished = true;
 }
 
 Printer.prototype._testSuccessHandler = function(test) {

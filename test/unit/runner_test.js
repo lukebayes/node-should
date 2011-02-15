@@ -11,8 +11,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
 
 (function runnerCanLoadFiles() {
   var r = new Runner();
-  r.run(/first.js/, 'test/fixtures', [new FakePrinter()], function() {
-    console.log(">> run files complete");
-  });
+  r.run(/first.js/, 'test/fixtures', [new FakePrinter()]);
+  //r.run(/first.js/, 'test/fixtures');
 })();
 

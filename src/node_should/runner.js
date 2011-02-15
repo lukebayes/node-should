@@ -1,4 +1,5 @@
 
+var assert = require('assert');
 var Context = require('node_should/context').Context;
 var Printer = require('node_should/printer').Printer;
 var vm = require('vm');
@@ -21,21 +22,30 @@ Runner.prototype.run = function(expr, path, printers, completeHandler) {
   var self = this;
   readEachFileMatching(expr, path, function(err, file, content) {
     if (err) throw err;
-    self._runFileContent(file, content, printers);
+    self._runFileContent(file, content, printers, completeHandler);
   });
 }
 
 Runner.prototype._runFileContent = function(file, content, printers, completeHandler) {
-  var scope = this._createScope(file, printers);
+  var scope = this._createScope(file, printers, completeHandler);
   vm.runInNewContext(content, scope, file);
 }
 
-Runner.prototype._createScope = function(file, printers) {
+Runner.prototype._createScope = function(file, printers, completeHandler) {
   var context = null;
 
   var addPrintersToContext = function(c) {
     printers.forEach(function(printer) {
       printer.addContext(c);
+    });
+  }
+
+  var removeContextFromPrinters = function(c) {
+    printers.forEach(function(printer) {
+      printer.removeContext(c);
+      if (completeHandler && printer.finished) {
+        completeHandler.call(this);
+      }
     });
   }
 
@@ -49,13 +59,16 @@ Runner.prototype._createScope = function(file, printers) {
       context = c;
     }
     c.addExecutionHandler.apply(c, arguments);
-    c.execute();
+    c.execute(function() {
+      removeContextFromPrinters(c);
+    });
     if (c.parent) {
       context = c.parent;
     }
   }
 
   return {
+    assert: assert,
     require: require,
     console: console,
     setInterval: setInterval,

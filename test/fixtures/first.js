@@ -6,3 +6,4 @@ context('SomeClass', function() {
     }), 0);
   });
 });
+
