@@ -11,3 +11,4 @@ This would collect all of the files in test/ match the Regular Expression:
 
 Each test case will be loaded, interpreted and executed, and a report will be 
 printed while everything progresses and summarized when everything is complete.
+
