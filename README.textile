@@ -1,0 +1,38 @@
+
+h1. Node Should
+
+'Node Should' is a(nother) implementation of "Shoulda":http://thoughtbot.com/community/ in JavaScript and 
+specifically in the "NodeJS":http://nodejs.org/ runtime environment.
+
+This testing framework was developed test-first based on the examples
+found in the "NodeJs library":https://github.com/ry/node/tree/master/test/simple itself.
+
+There are most definitely bugs and problems in this code, but it is
+working well enough for me at the moment. If you encounter an issue,
+please let me know by "messaging me on github":http://github.com/lukebayes . Forks and pull requests
+are definitely welcome.
+
+The main problem that I set out to solve with this library, is one
+of composite test environments. I really appreciate how Shoulda
+enables shared, general setup code and more specific leaves that
+can take advantage of it.
+
+Another major reason for building this framework was inherently
+supporting asynchronous tests.
+
+The ad-hoc assertion testing found in the NodeJs library code is 
+obviously good-enough to get by, but suffers from problems with 
+error localization, especially when something asynchronous fails.
+
+To use this framework, take a look at the project in the example/
+folder.
+
+You'll probably want to copy the runner.js file found there into 
+your project, and add the files found in src/ to a folder in your
+lib/ like, lib/node-should, and get that into your load path.
+
+Once you have taken these two steps, you should be able to run
+your test harness with:
+
+  node runner.js
+
