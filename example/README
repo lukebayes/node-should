@@ -1,0 +1,13 @@
+
+This is an example ShouldNode project.
+
+The idea is that you might cd into this directory, and run:
+
+    node runner.js
+
+This would collect all of the files in test/ match the Regular Expression: 
+
+    *_test.js
+
+Each test case will be loaded, interpreted and executed, and a report will be 
+printed while everything progresses and summarized when everything is complete.
