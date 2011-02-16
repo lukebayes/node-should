@@ -76,26 +76,18 @@ Printer.prototype._printInfo = function(message) {
 }
 
 Printer.prototype._printSuccess = function(message) {
-  //TODO(lukebayes) Decorate this message with ascii chars
-  //to turn it green in a terminal.
   this.out.write(style.green(message));
 }
 
 Printer.prototype._printFailure = function(message) {
-  //TODO(lukebayes) Decorate this message with ascii chars
-  //to turn it red in a terminal.
   this.out.write(style.red(message));
 }
 
 Printer.prototype._printError = function(message) {
-  //TODO(lukebayes) Decorate this message with ascii chars
-  //to turn it red in a terminal.
   this.out.write(style.red(message));
 }
 
 Printer.prototype._printIgnore = function(message) {
-  //TODO(lukebayes) Decorate this message with ascii chars
-  //to turn it yellow in a terminal.
   this.out.write(style.yellow(message));
 }
 
