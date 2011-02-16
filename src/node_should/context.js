@@ -101,27 +101,6 @@ Context.prototype._executeAllTests = function(testIterator) {
   }
 }
 
-Context.prototype._getTestExecutionOptions = function(iterator) {
-  var self = this;
-  var options = {
-    asyncHandlers : 0,
-    iterator : iterator,
-    scope : { 
-      async : function(callback) {
-        options.asyncHandlers++;
-        return function() {
-          options.asyncHandlers--;
-          self._callHandler(callback, options.scope);
-          if (options.asyncHandlers == 0) {
-            self._executeNextSetupOrTestOrTeardown(options);
-          }
-        }
-      }
-    }
-  }
-  return options;
-}
-
 Context.prototype._createTestHandlerIterator = function(completeHandler) {
   var testHandlers = this._testHandlers;
 
@@ -156,6 +135,30 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
   return new ArrayIterator(testHandlerList);
 }
 
+Context.prototype._getTestExecutionOptions = function(iterator) {
+  var self = this;
+  var options = {};
+
+  var asyncHandler = function(callback) {
+    options.asyncHandlers++;
+    return function() {
+      options.asyncHandlers--;
+      self._callHandler(callback, options);
+      if (options.asyncHandlers == 0) {
+        self._executeNextSetupOrTestOrTeardown(options);
+      }
+    }
+  }
+
+  options.asyncHandlers = 0;
+  options.iterator = iterator;
+  options.scope = {
+    async : asyncHandler
+  }
+
+  return options;
+}
+
 Context.prototype._getTestStartedHandler = function(testHandlerData) {
   return function() {
     testHandlerData.startedAt = new Date();
@@ -178,15 +181,21 @@ Context.prototype._onSuccess = function(testHandlerData) {
   this.emit('success', testHandlerData);
 }
 
-Context.prototype._onFailure = function(failure) {
-  this.emit('failure', failure);
+Context.prototype._onFailure = function(testHandlerData) {
+  if (this.listeners('failure').length == 0) {
+    throw testHandlerData.failure;
+  }
+  this.emit('failure', testHandlerData);
 }
 
-Context.prototype._onError = function(error) {
-  this.emit('error', error);
+Context.prototype._onError = function(testHandlerData) {
+  if (this.listeners('error').length == 0) {
+    throw testHandlerData.error;
+  }
+  this.emit('error', testHandlerData);
 }
 
-Context.prototype._callHandler = function(handlerData, scope) {
+Context.prototype._callHandler = function(handlerData, options) {
   var handler = null;
   var failureLabel = null;
   if (typeof(handlerData) == 'function') {
@@ -195,8 +204,9 @@ Context.prototype._callHandler = function(handlerData, scope) {
     handler = handlerData.handler;
     failureLabel = handlerData.label;
   }
+
   try {
-    handler.call(scope);
+    handler.call(options.scope);
   } catch (e) {
     if (e instanceof AssertionError) {
       if (failureLabel) {
@@ -204,12 +214,14 @@ Context.prototype._callHandler = function(handlerData, scope) {
       }
       handlerData.failure = e;
       this._onFailure(handlerData);
-    } else {
+    } else if (e) {
       if (failureLabel) {
         e = new e.constructor(failureLabel + '\n' + e.toString());
       }
-      handlerData.error = e;
+      handlerData.error = e
       this._onError(handlerData);
+    } else {
+      throw 'Caught handler exception with no exception? (' + e +')';
     }
   }
 }
@@ -218,7 +230,7 @@ Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
   var itr = options.iterator;
 
   if (itr.hasNext()) {
-    this._callHandler(itr.next(), options.scope);
+    this._callHandler(itr.next(), options);
     if(options.asyncHandlers == 0) {
       this._executeNextSetupOrTestOrTeardown(options);
     }
@@ -226,10 +238,12 @@ Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
 }
 
 Context.prototype.getAllSetupHandlers = function() {
-  var handlers = this._setupHandlers.slice(0);
+  var handlers = []
   if (this.parent) {
     handlers = handlers.concat(this.parent.getAllSetupHandlers());
   }
+  handlers = handlers.concat(this._setupHandlers.slice(0));
+
   return handlers;
 }
 
@@ -246,6 +260,8 @@ Context.prototype._getSetupHandlersForTest = function(label) {
   return this.getAllSetupHandlers()
     .slice(0)
     .map(function(handlerData) {
+      // NOTE: This add .label to shared handlerData
+      // by reference - (slice is shallow clone).
       handlerData.label = label;
       return handlerData;
     });

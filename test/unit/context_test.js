@@ -318,6 +318,7 @@ require('../common');
   var parent = new Context('SomeParent');
   parent.addSetupHandler(function() {
     executed.push('parentsetup');
+    this.param = {};
   });
   parent.addTeardownHandler(function() {
     executed.push('parentteardwon');
@@ -325,12 +326,14 @@ require('../common');
   var child = new Context('with a child');
   child.addSetupHandler(function() {
     executed.push('childsetup');
+    this.param.name = 'childvalue';
   });
   child.addTeardownHandler(function() {
     executed.push('childteardown');
   });
   child.addTestHandler('do something', function() {
     executed.push('testmethod1');
+    assert.equal(this.param.name, 'childvalue');
   });
   child.addTestHandler('do something else', function() {
     executed.push('testmethod2');
@@ -339,4 +342,9 @@ require('../common');
   parent.addChild(child);
   child.execute();
   assert.equal(10, executed.length);
+  assert.equal('parentsetup', executed[0]);
+})();
+
+(function contextShouldStopIfASetupFails() {
+  //assert.fail('todo');
 })();
