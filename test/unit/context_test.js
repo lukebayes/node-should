@@ -345,6 +345,3 @@ require('../common');
   assert.equal('parentsetup', executed[0]);
 })();
 
-(function contextShouldStopIfASetupFails() {
-  //assert.fail('todo');
-})();
