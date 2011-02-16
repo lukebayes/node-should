@@ -1,3 +1,5 @@
+var sys = require('sys');
+var style = require('node_should/colored');
 
 var Printer = function() {
   this.contexts = [];
@@ -76,25 +78,25 @@ Printer.prototype._printInfo = function(message) {
 Printer.prototype._printSuccess = function(message) {
   //TODO(lukebayes) Decorate this message with ascii chars
   //to turn it green in a terminal.
-  this.out.write(message);
+  this.out.write(style.green(message));
 }
 
 Printer.prototype._printFailure = function(message) {
   //TODO(lukebayes) Decorate this message with ascii chars
   //to turn it red in a terminal.
-  this.out.write(message);
+  this.out.write(style.red(message));
 }
 
 Printer.prototype._printError = function(message) {
   //TODO(lukebayes) Decorate this message with ascii chars
   //to turn it red in a terminal.
-  this.out.write(message);
+  this.out.write(style.red(message));
 }
 
 Printer.prototype._printIgnore = function(message) {
   //TODO(lukebayes) Decorate this message with ascii chars
   //to turn it yellow in a terminal.
-  this.out.write(message);
+  this.out.write(style.yellow(message));
 }
 
 Printer.prototype._addSuccess = function(test) {
@@ -154,12 +156,39 @@ Printer.prototype._printFinish = function() {
 
 Printer.prototype._printSummary = function() {
   this._printInfo('Test Count: ' + this.length + ', ');
-  this._printSuccess('OK: ' + this.succeeded.length + ', ');
-  this._printFailure('Failures: ' + this.failed.length + ', ');
-  this._printError('Errors: ' + this.errored.length + ', ');
-  this._printIgnore('Ignored: ' + this.ignored.length);
+  this._printInfo('OK: ' + this.succeeded.length + ', ');
+  this._printFailureSummary();
+  this._printErrorSummary();
+  this._printIgnoredSummary();
   this._printInfo('\n');
   this._printInfo('\n');
+}
+
+Printer.prototype._printErrorSummary = function() {
+  var message = 'Errors: ' + this.errored.length + ', ';
+  if (this.errored.length > 0) {
+    this._printError(message);
+  } else {
+    this._printInfo(message);
+  }
+}
+
+Printer.prototype._printFailureSummary = function() {
+  var message = 'Failures: ' + this.failed.length + ', ';
+  if (this.failed.length > 0) {
+    this._printFailure(message);
+  } else {
+    this._printInfo(message);
+  }
+}
+
+Printer.prototype._printIgnoredSummary = function() {
+  var message = 'Ignored: ' + this.ignored.length;
+  if (this.ignored.length > 0) {
+    this._printIgnore(message);
+  } else {
+    this._printInfo(message);
+  }
 }
 
 Printer.prototype._printDuration = function() {
