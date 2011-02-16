@@ -10,26 +10,10 @@ var FakeStream = require('fake_stream').FakeStream;
 var FakePrinter = function() {
   Printer.call(this);
   this.out = new FakeStream();
+  this.colorized = false;
 }
 
 util.inherits(FakePrinter, Printer);
-
-// Override colorized methods so that our tests can be a little simpler.
-FakePrinter.prototype._printSuccess = function(message) {
-  this.out.write(message);
-}
-
-FakePrinter.prototype._printFailure = function(message) {
-  this.out.write(message);
-}
-
-FakePrinter.prototype._printError = function(message) {
-  this.out.write(message);
-}
-
-FakePrinter.prototype._printIgnore = function(message) {
-  this.out.write(message);
-}
 
 exports.FakePrinter = FakePrinter;
 

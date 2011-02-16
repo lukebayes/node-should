@@ -2,6 +2,7 @@ var sys = require('sys');
 var style = require('node_should/colored');
 
 var Printer = function() {
+  this.colorized = true;
   this.contexts = [];
   this.errored = [];
   this.failed = [];
@@ -76,19 +77,35 @@ Printer.prototype._printInfo = function(message) {
 }
 
 Printer.prototype._printSuccess = function(message) {
-  this.out.write(style.green(message));
+  if (this.colorized) {
+    this._printInfo(style.green(message));
+  } else {
+    this._printInfo(message);
+  }
 }
 
 Printer.prototype._printFailure = function(message) {
-  this.out.write(style.red(message));
+  if (this.colorized) {
+    this.out.write(style.red(message));
+  } else {
+    this._printInfo(message);
+  }
 }
 
 Printer.prototype._printError = function(message) {
-  this.out.write(style.red(message));
+  if (this.colorized) {
+    this.out.write(style.red(message));
+  } else {
+    this._printInfo(message);
+  }
 }
 
 Printer.prototype._printIgnore = function(message) {
-  this.out.write(style.yellow(message));
+  if (this.colorized) {
+    this.out.write(style.yellow(message));
+  } else {
+    this._printInfo(message);
+  }
 }
 
 Printer.prototype._addSuccess = function(test) {
