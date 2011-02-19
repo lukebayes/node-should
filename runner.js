@@ -9,6 +9,7 @@ require('unit/test_context')
 
 process.on('exit', function() {
   console.log('\n');
+  console.log('>> See test/fixtures/first.js for information about failing throws');
   console.log('>> Tests Complete');
 });
 

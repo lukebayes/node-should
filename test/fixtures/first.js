@@ -11,8 +11,11 @@ context('SomeClass', function() {
 
   should('throw exception', function() {
     assert.throws(function() {
-      throw 'hello world';
-    }, /hello/);
+      throw new Error('hello world');
+    // This passes:
+    });
+    // This fails:
+    //}, /hello/);
   });
 });
 

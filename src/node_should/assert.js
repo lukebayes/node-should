@@ -241,17 +241,17 @@ assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
 };
 
 function expectedException(actual, expected) {
-  console.log('------------------------');
-  console.log(">> expectedException with actual: " + actual + " and expected: " + expected);
-  console.log(">> actual: " + actual + " type: " + typeof(actual));
-  console.log(">> expected: " + expected + " type: " + typeof(expected));
-  console.log(">> expected is regex?: " + (expected instanceof RegExp));
+  //console.log('------------------------');
+  //console.log(">> expectedException with actual: " + actual + " and expected: " + expected);
+  //console.log(">> actual: " + actual + " type: " + typeof(actual));
+  //console.log(">> expected: " + expected + " type: " + typeof(expected));
+  //console.log(">> expected is regex?: " + (expected instanceof RegExp));
 
   if (!actual || !expected) {
     return false;
   }
 
-  console.log(">> passed one");
+  //console.log(">> passed one");
 
   if (expected instanceof RegExp) {
     return expected.test(actual);
@@ -259,16 +259,12 @@ function expectedException(actual, expected) {
     return true;
   } else if (expected.call({}, actual) === true) {
     return true;
-  } else {
-    console.log(">> WTF IS IT?: " + typeof(expected));
   }
 
-  console.log('------------------------');
   return false;
 }
 
 function _throws(shouldThrow, block, expected, message) {
-  console.log(">> _throws: " + shouldThrow + " block: " + block + " expected: " + expected + " message: " + message);
   var actual;
 
   if (typeof expected === 'string') {
