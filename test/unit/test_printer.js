@@ -92,7 +92,7 @@ var FakePrinter = require('fake_printer').FakePrinter;
   assert.equal(1, p.length);
   assert.match(/^F/gm, message);
   assert.match(/Test Count: 1, OK: 0, Failures: 1, Errors: 0, Ignored: 0/, message);
-  assert.match(/printer_test.js/, message);
+  assert.match(/test_printer.js/, message);
 })();
 
 (function printerFailureWorksWithMultipleCalls() {

@@ -1,5 +1,5 @@
 
-var assert = require('assert');
+var assert = require('node_should/assert');
 var Context = require('node_should/context').Context;
 var Printer = require('node_should/printer').Printer;
 var vm = require('vm');
@@ -52,6 +52,7 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
   var createContext = function() {
     var c = new Context();
     addPrintersToContext(c);
+
     if (context == null) {
       context = c;
     } else {
@@ -67,28 +68,37 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
     }
   }
 
-  return {
-    assert: assert,
-    require: require,
-    console: console,
-    setInterval: setInterval,
-    setTimeout: setTimeout,
-    context: function() {
-      createContext.apply(this, arguments);
-    },
-    should: function() {
-      context.addTestHandler.apply(context, arguments);
-    },
-    setup: function() {
-      context.addSetupHandler.apply(context, arguments);
-    },
-    teardown: function() {
-      context.addTeardownHandler.apply(context, arguments);
-    },
-    ignore: function() {
-      console.log('Ignore not yet supported...');
-    },
+  var scope = {};
+  for (var k in global) {
+    scope[k] = global[k];
   }
+
+  //scope.exports = this.exports;
+  //scope.module = this;
+  scope.global = scope;
+  scope.root = root;
+
+  scope.assert = assert;
+  scope.require =  require;
+  scope.console = console;
+
+  scope.context =  function() {
+    createContext.apply(this, arguments);
+  };
+  scope.should = function() {
+    context.addTestHandler.apply(context, arguments);
+  };
+  scope.setup = function() {
+    context.addSetupHandler.apply(context, arguments);
+  };
+  scope.teardown = function() {
+    context.addTeardownHandler.apply(context, arguments);
+  };
+  scope.ignore = function() {
+    console.log('Ignore not yet supported...');
+  };
+
+  return scope;
 }
 
 exports.Runner = Runner;

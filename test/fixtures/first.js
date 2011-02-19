@@ -1,9 +1,18 @@
 
 context('SomeClass', function() {
 
+  setup(function() {
+    this.name = 'abcd';
+  });
+
   should('do something', function() {
-    setTimeout(this.async(function() {
-    }), 0);
+    assert.equal('abcd', this.name);
+  });
+
+  should('throw exception', function() {
+    assert.throws(function() {
+      throw 'hello world';
+    }, /hello/);
   });
 });
 

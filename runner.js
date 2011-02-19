@@ -1,11 +1,11 @@
 require.paths.unshift('src');
 require.paths.unshift('test');
 
-require('unit/runner_test')
-require('unit/printer_test')
-require('unit/array_iterator_test')
-require('unit/composite_test')
-require('unit/context_test')
+require('unit/test_runner')
+require('unit/test_printer')
+require('unit/test_array_iterator')
+require('unit/test_composite')
+require('unit/test_context')
 
 process.on('exit', function() {
   console.log('\n');

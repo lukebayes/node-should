@@ -1,22 +1,19 @@
 
-require('common');
+var assert = require('assert');
+require('../common');
 var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
 
-context('ArrayIterator', function() {
+(function iteratorLoopsOverOneChild() {
+  var itr = new ArrayIterator(['a']);
+  assert.ok(itr.hasNext());
+  assert.equal('a', itr.next());
 
-  should('loop over one child', function() {
-    var itr = new ArrayIterator(['a']);
-    assert.ok(itr.hasNext());
-    assert.equal('a', itr.next());
+  assert.ok(!itr.hasNext());
+  assert.throws(function() {
+    itr.next();
+  }, /no more items/);
+})();
 
-    assert.ok(!itr.hasNext());
-    assert.throws(function() {
-      itr.next();
-    }, /no more items/);
-  });
-});
-
-/*
 (function iteratorLoopsOverThreeChildren() {
   var itr = new ArrayIterator(['a', 'b', 'c']);
   assert.ok(itr.hasNext());
@@ -45,5 +42,4 @@ context('ArrayIterator', function() {
     itr.peek();
   }, /no more items/);
 })();
-*/
 

@@ -345,3 +345,13 @@ require('../common');
   assert.equal('parentsetup', executed[0]);
 })();
 
+(function testThrowsAssertion() {
+  var composite = new Context('SomeClass');
+  composite.addTestHandler(function() {
+    assert.throws(function() {
+      throw 'hello world';
+    }, /hello world/);
+  });
+  composite.execute();
+})();
+

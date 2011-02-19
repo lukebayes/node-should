@@ -208,16 +208,24 @@ Context.prototype._callHandler = function(handlerData, options) {
   try {
     handler.call(options.scope);
   } catch (e) {
+    //console.log("-----------------");
+    //console.log(e);
+
     if (e instanceof AssertionError) {
       if (failureLabel) {
-        e.message = failureLabel + '\n' + e.message;
+        e.message = failureLabel + '\n' + e.toString();
       }
       handlerData.failure = e;
       this._onFailure(handlerData);
     } else if (e) {
       if (failureLabel) {
-        e = new e.constructor(failureLabel + '\n' + e.toString());
+        if (typeof(e) == "string") {
+          e = new Error(failureLabel + '\n' + e);
+        } else {
+          //e = new e.constructor(failureLabel + '\n' + e);
+        }
       }
+      
       handlerData.error = e
       this._onError(handlerData);
     } else {

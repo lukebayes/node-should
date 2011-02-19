@@ -27,7 +27,7 @@ ArrayIterator.prototype.current = function() {
 }
 
 ArrayIterator.prototype._ensureNext = function() {
-  if (!this.hasNext()) throw 'Iterator.next called but no more items are available.'
+  if (!this.hasNext()) throw 'Iterator.next called but no more items are available.';
 }
 
 exports.ArrayIterator = ArrayIterator;
