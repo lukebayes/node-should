@@ -1,14 +1,6 @@
 
 h1. Node Should
 
-h3. This project is stalled because of a possible (super obscure) issue in nodejs:
-
-This project is currently on hold because I can't seem to work 
-around "this issue":https://github.com/ry/node/issues#issue/693 . 
-
-Any ideas or thoughts about what I'm doing wrong, or how to work 
-around this issue would be welcomed.
-
 'Node Should' is a(nother) implementation of "Shoulda":http://thoughtbot.com/community/ in JavaScript and 
 specifically in the "NodeJS":http://nodejs.org/ runtime environment.
 
@@ -44,3 +36,6 @@ your test harness with:
 
   node runner.js
 
+If you're interested in more examples of how to write tests using
+this framework, check out the runner.js and test folder for the
+framework itself.
