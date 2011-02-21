@@ -241,19 +241,11 @@ assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
 };
 
 function expectedException(actual, expected) {
-  //console.log('------------------------');
-  //console.log(">> expectedException with actual: " + actual + " and expected: " + expected);
-  //console.log(">> actual: " + actual + " type: " + typeof(actual));
-  //console.log(">> expected: " + expected + " type: " + typeof(expected));
-  //console.log(">> expected is regex?: " + (expected instanceof RegExp));
-
   if (!actual || !expected) {
     return false;
   }
 
-  //console.log(">> passed one");
-
-  if (expected instanceof RegExp) {
+  if (typeof(expected['test']) == "function") {
     return expected.test(actual);
   } else if (actual instanceof expected) {
     return true;
@@ -308,3 +300,16 @@ assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
 };
 
 assert.ifError = function(err) { if (err) {throw err;}};
+
+assert.match = function(regexp, string) {
+  if(!string.match(regexp)) {
+    assert.fail('Unable to match ' + regexp + ' in: ' + string);
+  }
+}
+
+assert.same = function(expected, actual) {
+  if(expected !== actual) {
+    assert.fail('Expected (' + expected + ') does not reference the same object as (' + actual +')');
+  }
+}
+

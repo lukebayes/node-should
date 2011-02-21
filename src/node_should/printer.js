@@ -269,10 +269,13 @@ Printer.prototype._printDurationDetails = function() {
       }
     });
 
-    
+    var count = 10;
+    self._printInfo('Printing 10 slowest test methods:\n\n');
     items.forEach(function(test) {
-      var durationLabel = self._insertLeadingSpaces(test.duration, 6);
-      self._printInfo(durationLabel + ' ms : ' + test.label + '\n');
+      if (count-- > 0) {
+        var durationLabel = self._insertLeadingSpaces(test.duration, 6);
+        self._printInfo(durationLabel + ' ms : ' + test.label + '\n');
+      }
     });
   }
 }

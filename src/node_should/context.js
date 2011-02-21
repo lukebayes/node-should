@@ -211,7 +211,7 @@ Context.prototype._callHandler = function(handlerData, options) {
     //console.log("-----------------");
     //console.log(e);
 
-    if (e instanceof AssertionError) {
+    if (e.name == 'AssertionError') {
       if (failureLabel) {
         e.message = failureLabel + '\n' + e.toString();
       }
