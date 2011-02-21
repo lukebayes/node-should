@@ -28,8 +28,7 @@ Runner.prototype.run = function(expr, path, printers, completeHandler) {
 
 Runner.prototype._runFileContent = function(file, content, printers, completeHandler) {
   var scope = this._createScope(file, printers, completeHandler);
-  var script = vm.createScript(content, file);
-  script.runInNewContext(scope);
+  vm.runInNewContext(content, scope, file);
 }
 
 Runner.prototype._createScope = function(file, printers, completeHandler) {
