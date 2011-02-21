@@ -1,8 +1,7 @@
 
 var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
 var Composite = require('node_should/composite').Composite;
-
-var AssertionError = require('assert').AssertionError;
+var TestHandler = require('node_should/test_handler').TestHandler;
 var util = require('util');
 
 var Context = function(label) {
@@ -15,6 +14,8 @@ var Context = function(label) {
 
 util.inherits(Context, Composite);
 
+Context.DEFAULT_ASYNC_TIMEOUT = 50;
+
 Context.prototype.addExecutionHandler = function(label, handler) {
   this._cleanHandlerArguments(arguments);
   this._label = label;
@@ -23,12 +24,12 @@ Context.prototype.addExecutionHandler = function(label, handler) {
 
 Context.prototype.addSetupHandler = function(handler) {
   if (handler == null) throw 'The handler provided to Context.addSetupHandler must not be null';
-  this._setupHandlers.push({ handler: handler });
+  this._setupHandlers.push(TestHandler.create(this, this.getLabel(), handler));
 }
 
 Context.prototype.addTeardownHandler = function(handler) {
   if (handler == null) throw 'The handler provided to Context.addTeardownHandler must not be null';
-  this._teardownHandlers.push({ handler: handler });
+  this._teardownHandlers.push(TestHandler.create(this, this.getLabel(), handler));
 }
 
 /**
@@ -40,9 +41,46 @@ Context.prototype.addTestHandler = function(label, handler) {
   if (this.getLabel() != '') {
     label = [this.getLabel(), 'should', label].join(' ');
   }
-  this._testHandlers.push({ handler: handler, label: label });
+  //this._testHandlers.push({ handler: handler, label: label });
+  this._testHandlers.push(TestHandler.create(this, label, handler));
   // TODO(lukebayes) Probably shouldn't set label here, it's doing work that
   // isn't necessary, and will only be used in cases of failure?
+}
+
+/**
+ * Called during test execution and should prevent the call of the next test
+ * setup, test or teardown until the async handler either times out, or
+ * completes.
+ */
+Context.prototype.addAsyncHandler = function(callback, timeout) {
+  timeout = (timeout == null) ? Context.DEFAULT_ASYNC_TIMEOUT : timeout;
+  var timeoutError = new Error('Async timeout (' + timeout + 'ms) exceeded.');
+  var self = this;
+  var options = this.currentOptions;
+  var timeoutId = null;
+  var timeoutExecuted = false;
+
+  options.asyncHandlers++;
+
+  timeoutId = setTimeout(function() {
+    console.log("async timeout exceeded with!: " + timeoutError.stack);
+    timeoutExecuted = true;
+    options.asyncHandlers--;
+
+    self._onError({
+      error : timeoutError
+    });
+
+    self._executeNextSetupOrTestOrTeardown(options);
+  }, timeout);
+
+  return function() {
+    if (!timeoutExecuted) {
+      clearTimeout(timeoutId);
+      options.asyncHandlers--;
+      self._callHandler(callback, options);
+    }
+  }
 }
 
 /**
@@ -128,7 +166,7 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
       // that wraps test methods:
       setTimeout(function() {
         completeHandler();
-      }, 0);
+      });
     }
   });
 
@@ -139,23 +177,9 @@ Context.prototype._getTestExecutionOptions = function(iterator) {
   var self = this;
   var options = {};
 
-  var asyncHandler = function(callback) {
-    options.asyncHandlers++;
-    return function() {
-      options.asyncHandlers--;
-      self._callHandler(callback, options);
-      if (options.asyncHandlers == 0) {
-        self._executeNextSetupOrTestOrTeardown(options);
-      }
-    }
-  }
-
   options.asyncHandlers = 0;
   options.iterator = iterator;
-  options.scope = {
-    async : asyncHandler
-  }
-
+  options.scope = {};
   return options;
 }
 
@@ -189,6 +213,7 @@ Context.prototype._onFailure = function(testHandlerData) {
 }
 
 Context.prototype._onError = function(testHandlerData) {
+  //console.log(testHandlerData.error.stack);
   if (this.listeners('error').length == 0) {
     throw testHandlerData.error;
   }
@@ -206,6 +231,7 @@ Context.prototype._callHandler = function(handlerData, options) {
   }
 
   try {
+    this.currentOptions = options;
     handler.call(options.scope);
   } catch (e) {
     //console.log("-----------------");
@@ -232,16 +258,14 @@ Context.prototype._callHandler = function(handlerData, options) {
       throw 'Caught handler exception with no exception? (' + e +')';
     }
   }
+
+  this._executeNextSetupOrTestOrTeardown(options);
 }
 
 Context.prototype._executeNextSetupOrTestOrTeardown = function(options) {
   var itr = options.iterator;
-
-  if (itr.hasNext()) {
+  if (options.asyncHandlers == 0 && itr.hasNext()) {
     this._callHandler(itr.next(), options);
-    if(options.asyncHandlers == 0) {
-      this._executeNextSetupOrTestOrTeardown(options);
-    }
   }
 }
 

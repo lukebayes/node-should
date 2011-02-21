@@ -12,6 +12,20 @@ var DEFAULT_PRINTERS   = [new Printer()];
 var Runner = function() {
 }
 
+Runner.prototype.runFromTerminal = function(argv, printers, completeHandler) {
+  console.log("Running from term with: " + argv);
+  argv.forEach(function(val, index, array) {
+    console.log("val: " + val + " index: " + index);
+    if (val == '-s' || val == '--source-path') {
+      console.log("source path with: " + array[index+1]);
+    } else if (val == '-t' || val == '--test-expression') {
+      console.log("testl expression with: " + array[index+1]);
+    } else if (val == '-n' || val == '--name') {
+      console.log("test name with: " + array[index+1]);
+    }
+  });
+}
+
 Runner.prototype.run = function(expr, path, printers, completeHandler) {
   printers = (printers) ? printers : DEFAULT_PRINTERS;
   // start provided printers:
@@ -73,8 +87,6 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
     scope[k] = global[k];
   }
 
-  //scope.exports = this.exports;
-  //scope.module = this;
   scope.global = scope;
   scope.root = root;
 
@@ -82,6 +94,9 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
   scope.require =  require;
   scope.console = console;
 
+  scope.async = function() {
+    return context.addAsyncHandler.apply(context, arguments);
+  };
   scope.context =  function() {
     createContext.apply(this, arguments);
   };

@@ -1,4 +1,5 @@
 
+exports.TestHandler = require('node_should/test_handler').TestHandler;
 exports.Context = require('node_should/context').Context;
 exports.Printer = require('node_should/printer').Printer;
 exports.Runner = require('node_should/runner').Runner;

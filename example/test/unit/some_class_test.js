@@ -38,12 +38,12 @@ context('SomeClass', function() {
 
   // This is an asynchronous test method:
   // Node how we send our custom handler to
-  // this.async, and send it's response to
+  // async, and send it's response to
   // whatever would normally trigger our custom
   // handler.
   should('do some long task', function() {
     var self = this;
-    this.instance.doSomeLongAsyncTask(10, this.async(function() {
+    this.instance.doSomeLongAsyncTask(10, async(function() {
       assert.ok(self.instance.isDone, 'long async task completed');
     }));
   });

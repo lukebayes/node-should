@@ -199,7 +199,7 @@ context('A new Context', function() {
       var executed = [];
       var c = new Context();
       c.addSetupHandler(function() {
-        var asyncHandler = this.async(function() {
+        var asyncHandler = async(function() {
           executed.push('asyncsetup');
         });
         setTimeout(asyncHandler, 0);
@@ -218,12 +218,12 @@ context('A new Context', function() {
       var executed = [];
       var c = new Context();
       c.addSetupHandler(function() {
-        setTimeout(this.async(function() {
+        setTimeout(async(function() {
           executed.push('asyncsetup');
         }), 0);
       });
       c.addTestHandler(function() {
-        setTimeout(this.async(function() {
+        setTimeout(async(function() {
           executed.push('asynctest1');
         }), 0);
         // TODO(lukebayes) Problem with async tests:
@@ -232,12 +232,12 @@ context('A new Context', function() {
         // This fails!!!!!
       });
       c.addTestHandler(function() {
-        setTimeout(this.async(function() {
+        setTimeout(async(function() {
           executed.push('asynctest2');
         }), 0);
       });
       c.addTeardownHandler(function() {
-        setTimeout(this.async(function() {
+        setTimeout(async(function() {
           executed.push('asyncteardown');
         }), 0);
       });
@@ -283,7 +283,7 @@ context('A new Context', function() {
         failure = f;
       });
       c.addTestHandler(function() {
-        setTimeout(this.async(function() {
+        setTimeout(c.addAsyncHandler(function() {
           assert.ok(false, 'should be false');
         }), 0);
       });
@@ -310,15 +310,21 @@ context('A new Context', function() {
       var executed = [];
       var c = new Context();
       c.addTestHandler(function() {
-        setTimeout(this.async(function() {
-          executed.push('one');
-        }), 0);
-        setTimeout(this.async(function() {
-          executed.push('two');
-        }), 0);
-        setTimeout(this.async(function() {
-          executed.push('three');
-        }), 0);
+        setTimeout(async(function() {
+          c.addAsyncHandler(function() {
+            executed.push('one');
+          });
+        }));
+        setTimeout(async(function() {
+          c.addAsyncHandler(function() {
+            executed.push('two');
+          });
+        }));
+        setTimeout(async(function() {
+          c.addAsyncHandler(function() {
+            executed.push('three');
+          });
+        }));
       });
 
       c.execute(function() {

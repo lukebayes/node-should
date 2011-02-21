@@ -1,0 +1,14 @@
+{
+  "name" : "nodeshould",
+  "version" : "0.0.1",
+  "description" : "A small implementation of Shoulda for testing JavaScript applications with Node",
+  "keywords" : ["shoulda", "test", "unit", "integration"],
+  "homepage" : "http://github.com/lukebayes/node-should",
+  "author" : {
+    "name" : "Luke Bayes",
+    "email" : "lbayes@patternpark.com",
+    "url" : "http://lukebayes.com",
+  },
+  "main" : "node_should.js",
+  "test" : "runner.js",
+}
