@@ -36,6 +36,7 @@ context('SomeClass', function() {
     assert.ok(this.instance instanceof SomeClass);
   });
 
+  /*
   // This is an asynchronous test method:
   // Node how we send our custom handler to
   // async, and send it's response to
@@ -67,4 +68,6 @@ context('SomeClass', function() {
       assert.equal('foo', this.instance.name);
     });
   });
+
+  */
 });

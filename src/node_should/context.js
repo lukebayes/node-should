@@ -77,7 +77,7 @@ Context.prototype.addAsyncHandler = function(callback, timeout) {
 }
 
 Context.prototype._executeAsyncTimeout = function(options, timeoutError) {
-  console.log("async timeout exceeded with!: " + timeoutError.stack);
+  //console.log("async timeout exceeded with!: " + timeoutError.stack);
   options.asyncHandlers--;
 
   this._onError({
@@ -217,7 +217,7 @@ Context.prototype._onFailure = function(testHandlerData) {
 }
 
 Context.prototype._onError = function(testHandlerData) {
-  console.log(testHandlerData.error.message);
+  //console.log(testHandlerData.error.message);
   if (this.listeners('error').length == 0) {
     throw testHandlerData.error;
   }

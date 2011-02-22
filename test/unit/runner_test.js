@@ -1,4 +1,3 @@
-/*
 require('common');
 var Runner = require('node_should/runner').Runner;
 var FakePrinter = require('fake_printer').FakePrinter;
@@ -10,6 +9,11 @@ context('A new Runner', function() {
     this.runner = new Runner();
   });
 
+  should('be instantiable', function() {
+    assert.ok(this.runner);
+  });
+
+  /*
   should('load specified files', function() {
     this.runner.run(/first.js/, 'test/fixtures', [this.printer], async(function() {
       //console.log(printer.out.message);
@@ -26,5 +30,6 @@ context('A new Runner', function() {
       }, 20));
     });
   });
+
+  */
 });
-*/

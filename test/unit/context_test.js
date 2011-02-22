@@ -195,6 +195,7 @@ context('A new Context', function() {
       assert.notStrictEqual(firstScope, secondScope);
     });
 
+    /*
     should('run setup asynchronously, if requested', function() {
       var executed = [];
       var c = new Context();
@@ -246,6 +247,7 @@ context('A new Context', function() {
         assert.equal(6, executed.length);
       });
     });
+    */
 
     should('capture runtime errors', function() {
       var error = null;
@@ -276,6 +278,7 @@ context('A new Context', function() {
       assert.ok(failure);
     });
 
+    /*
     should('capture async errors', function() {
       var failure = null;
       var c = new Context();
@@ -291,6 +294,7 @@ context('A new Context', function() {
         assert.ok(failure);
       });
     });
+    */
 
     should('include helpful label on setup error', function() {
       var error = null;
@@ -306,6 +310,7 @@ context('A new Context', function() {
       assert.match(/OtherClass should do something \(setup\)/, error.toString());
     });
 
+    /*
     should('handle multiple asyncs in same call', function() {
       var executed = [];
       var c = new Context();
@@ -334,6 +339,7 @@ context('A new Context', function() {
         assert.equal(executed[2], 'three');
       });
     });
+    */
   });
 
   context('failure', function() {
