@@ -45,27 +45,24 @@ Runner.prototype._runFileContent = function(file, content, printers, completeHan
   vm.runInNewContext(content, scope, file);
 }
 
+/**
+ * This method creates a new scope object that will be handed to 
+ * vm.runInNewScope.
+ *
+ * The named entities that are available on the returned scope wiil be
+ * available to tests in lexical scope.
+ *
+ * The body of this method is necessarily long as each scope should
+ * have it's own execution context in order to avoid asynchronous
+ * interactions across shared state.
+ */
 Runner.prototype._createScope = function(file, printers, completeHandler) {
   var context = null;
-
-  var addPrintersToContext = function(c) {
-    printers.forEach(function(printer) {
-      printer.addContext(c);
-    });
-  }
-
-  var removeContextFromPrinters = function(c) {
-    printers.forEach(function(printer) {
-      printer.removeContext(c);
-      if (completeHandler && printer.finished) {
-        completeHandler.call(this);
-      }
-    });
-  }
+  var self = this;
 
   var createContext = function() {
     var c = new Context();
-    addPrintersToContext(c);
+    self._addContextToPrinters(printers, c);
 
     if (context == null) {
       context = c;
@@ -75,7 +72,7 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
     }
     c.addExecutionHandler.apply(c, arguments);
     c.execute(function() {
-      removeContextFromPrinters(c);
+      self._removeContextFromPrinters(printers, c, completeHandler);
     });
     if (c.parent) {
       context = c.parent;
@@ -87,33 +84,47 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
     scope[k] = global[k];
   }
 
-  scope.global = scope;
-  scope.root = root;
-
   scope.assert = assert;
-  scope.require =  require;
   scope.console = console;
+  scope.global = scope;
+  scope.require =  require;
+  scope.root = root;
 
   scope.async = function() {
     return context.addAsyncHandler.apply(context, arguments);
   };
   scope.context =  function() {
-    createContext.apply(this, arguments);
+    return createContext.apply(this, arguments);
   };
   scope.should = function() {
-    context.addTestHandler.apply(context, arguments);
+    return context.addTestHandler.apply(context, arguments);
   };
   scope.setup = function() {
-    context.addSetupHandler.apply(context, arguments);
+    return context.addSetupHandler.apply(context, arguments);
   };
   scope.teardown = function() {
-    context.addTeardownHandler.apply(context, arguments);
+    return context.addTeardownHandler.apply(context, arguments);
   };
   scope.ignore = function() {
     console.log('Ignore not yet supported...');
   };
 
   return scope;
+}
+
+Runner.prototype._addContextToPrinters = function(printers, context) {
+  printers.forEach(function(printer) {
+    printer.addContext(context);
+  });
+}
+
+Runner.prototype._removeContextFromPrinters = function(printers, context, completeHandler) {
+  printers.forEach(function(printer) {
+    printer.removeContext(context);
+    if (completeHandler && printer.finished) {
+      completeHandler.call(this);
+    }
+  });
 }
 
 exports.Runner = Runner;

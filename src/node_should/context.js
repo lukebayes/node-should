@@ -63,15 +63,8 @@ Context.prototype.addAsyncHandler = function(callback, timeout) {
   options.asyncHandlers++;
 
   timeoutId = setTimeout(function() {
-    console.log("async timeout exceeded with!: " + timeoutError.stack);
     timeoutExecuted = true;
-    options.asyncHandlers--;
-
-    self._onError({
-      error : timeoutError
-    });
-
-    self._executeNextSetupOrTestOrTeardown(options);
+    self._executeAsyncTimeout(options, timeoutError);
   }, timeout);
 
   return function() {
@@ -81,6 +74,17 @@ Context.prototype.addAsyncHandler = function(callback, timeout) {
       self._callHandler(callback, options);
     }
   }
+}
+
+Context.prototype._executeAsyncTimeout = function(options, timeoutError) {
+  console.log("async timeout exceeded with!: " + timeoutError.stack);
+  options.asyncHandlers--;
+
+  this._onError({
+    error : timeoutError
+  });
+
+  this._executeNextSetupOrTestOrTeardown(options);
 }
 
 /**
@@ -213,7 +217,7 @@ Context.prototype._onFailure = function(testHandlerData) {
 }
 
 Context.prototype._onError = function(testHandlerData) {
-  //console.log(testHandlerData.error.stack);
+  console.log(testHandlerData.error.message);
   if (this.listeners('error').length == 0) {
     throw testHandlerData.error;
   }
