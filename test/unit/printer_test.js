@@ -254,6 +254,7 @@ context('printer', function() {
     assert.match(/   1 ms : abcd/gm, message);
   });
 
+  /*
   should('accept failing context', function() {
     var c = new Context('SomeClass 1');
     c.addTestHandler('should do something', function() {
@@ -268,6 +269,7 @@ context('printer', function() {
       assert.match(/Test Count: 1, OK: 0, Failures: 1, Errors: 0, Ignored: 0/, message);
     }));
   });
+  */
 
   should('accept passing context', function() {
     var c = new Context('SomeClass 2');
