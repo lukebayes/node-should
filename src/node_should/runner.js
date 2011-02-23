@@ -71,9 +71,7 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
       context = c;
     }
     c.addExecutionHandler.apply(c, arguments);
-    c.execute(function() {
-      self._removeContextFromPrinters(printers, c, completeHandler);
-    });
+    c.execute();
     if (c.parent) {
       context = c.parent;
     }
@@ -115,15 +113,6 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
 Runner.prototype._addContextToPrinters = function(printers, context) {
   printers.forEach(function(printer) {
     printer.addContext(context);
-  });
-}
-
-Runner.prototype._removeContextFromPrinters = function(printers, context, completeHandler) {
-  printers.forEach(function(printer) {
-    printer.removeContext(context);
-    if (completeHandler && printer.finished) {
-      completeHandler.call(this);
-    }
   });
 }
 

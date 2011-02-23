@@ -30,6 +30,5 @@ context('A new Runner', function() {
       }, 20));
     });
   });
-
   */
 });

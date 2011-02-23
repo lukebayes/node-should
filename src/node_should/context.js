@@ -162,19 +162,22 @@ Context.prototype._createTestHandlerIterator = function(completeHandler) {
     testHandlerList.push(new ArrayIterator(handlers));
   });
 
-  // Add a custom handler to trigger complete handler
-  // after all tests have finished:
-  handlers.push(function() {
-    if (completeHandler) {
-      // break out of the try..catch
-      // that wraps test methods:
-      setTimeout(function() {
-        completeHandler();
-      });
-    }
-  });
-
+  handlers.push(this._getContextCompleteHandler(completeHandler));
   return new ArrayIterator(testHandlerList);
+}
+
+Context.prototype._getContextCompleteHandler = function(externalCompleteHandler) {
+  var self = this;
+  return {
+    handler: function() {
+      self.emit('complete', self);
+      if (externalCompleteHandler && typeof(externalCompleteHandler) == "function") {
+        setTimeout(function() {
+          externalCompleteHandler(this);
+        });
+      }
+    }
+  }
 }
 
 Context.prototype._getTestExecutionOptions = function(iterator) {

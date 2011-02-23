@@ -1,5 +1,5 @@
 
-context('SomeClass', function() {
+context('AnotherClass', function() {
 
   setup(function() {
     this.name = 'abcd';
@@ -12,10 +12,7 @@ context('SomeClass', function() {
   should('throw exception', function() {
     assert.throws(function() {
       throw new Error('hello world');
-    // This passes:
     });
-    // This fails:
-    //}, /hello/);
   });
 });
 

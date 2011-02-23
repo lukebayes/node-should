@@ -255,7 +255,7 @@ context('printer', function() {
   });
 
   should('accept failing context', function() {
-    var c = new Context('SomeClass');
+    var c = new Context('SomeClass 1');
     c.addTestHandler('should do something', function() {
       assert.ok(false, 'expected failure!');
     });
@@ -263,14 +263,14 @@ context('printer', function() {
     var p = new FakePrinter();
     p.start();
     p.addContext(c);
-    c.execute();
-    p.finish();
-    var message = p.out.message;
-    assert.match(/Test Count: 1, OK: 0, Failures: 1, Errors: 0, Ignored: 0/, message);
+    c.execute(async(function() {
+      var message = p.out.message;
+      assert.match(/Test Count: 1, OK: 0, Failures: 1, Errors: 0, Ignored: 0/, message);
+    }));
   });
 
   should('accept passing context', function() {
-    var c = new Context('SomeClass');
+    var c = new Context('SomeClass 2');
     c.addTestHandler('should do something', function() {
       assert.ok(true);
     });

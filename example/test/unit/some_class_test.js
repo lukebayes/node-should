@@ -5,7 +5,7 @@ var SomeClass = require('some_class').SomeClass;
 // This is the outermost context in the file, but
 // there is no reason a single file can't contain
 // multiple contexts.
-context('SomeClass', function() {
+context('CustomClass', function() {
 
   // This is an example setup method. Any number of
   // setup methods can be declared and will be called

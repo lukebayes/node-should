@@ -27,27 +27,27 @@ context('A new Context', function() {
     });
 
     should('build from composite', function() {
-      var root = new Context('SomeClass');
+      var root = new Context('SomeClass 6');
       var child1 = new Context('with child');
       root.addChild(child1);
 
-      assert.equal('SomeClass with child', child1.getLabel());
+      assert.equal('SomeClass 6 with child', child1.getLabel());
     });
     
     should('build from composite, ignoring null child labels', function() {
-      var root = new Context('SomeClass');
+      var root = new Context('SomeClass 8');
       var child1 = new Context();
       root.addChild(child1);
 
-      assert.equal('SomeClass', child1.getLabel());
+      assert.equal('SomeClass 8', child1.getLabel());
     });
 
     should('build from composite, ignoring null root label', function() {
       var root = new Context();
-      var child1 = new Context('SomeClass');
+      var child1 = new Context('SomeClass 9');
       root.addChild(child1);
 
-      assert.equal('SomeClass', child1.getLabel());
+      assert.equal('SomeClass 9', child1.getLabel());
     });
   });
 
@@ -139,7 +139,7 @@ context('A new Context', function() {
 
     should('run setup, then tests, then teardowns', function() {
       var executed = [];
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 10');
       c.addSetupHandler(function() {
         executed.push('setup');
       });
@@ -159,7 +159,7 @@ context('A new Context', function() {
     });
 
     should('run handlers in shared scope', function() {
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 11');
       c.addSetupHandler(function() {
         this.foo = 'bar';
       });
@@ -171,7 +171,7 @@ context('A new Context', function() {
 
     should('call setups for each test method', function() {
       var executed = [];
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 12');
       c.addSetupHandler(function() { executed.push('setup1'); });
       c.addSetupHandler(function() { executed.push('setup2'); });
       c.addTestHandler(function() { executed.push('test1') });
@@ -251,7 +251,7 @@ context('A new Context', function() {
 
     should('capture runtime errors', function() {
       var error = null;
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 13');
       c.addListener('error', function(test) {
         error = test.error;
       });
@@ -259,7 +259,7 @@ context('A new Context', function() {
         throw 'unknown application error';
       });
       c.execute();
-      assert.match(/SomeClass should do something/, error.toString());
+      assert.match(/SomeClass 13 should do something/, error.toString());
       assert.match(/unknown application error/, error.toString());
     });
 
@@ -345,29 +345,29 @@ context('A new Context', function() {
   context('failure', function() {
 
     should('display helpful message', function() {
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 3');
       c.addTestHandler('accept argument', function() {
         assert.ok(false);
       });
       c.addListener('failure', function(test) {
-        assert.match(/SomeClass should accept argument/, test.failure.message);
+        assert.match(/SomeClass 3 should accept argument/, test.failure.message);
       });
       c.execute();
     });
 
     should('create default label', function() {
-      var c = new Context('SomeClass');
+      var c = new Context('SomeClass 4');
       c.addTestHandler(function() {
         assert.ok(false);
       });
       c.addListener('failure', function(test) {
-        assert.match(/SomeClass/, test.failure.stack);
+        assert.match(/SomeClass 4/, test.failure.stack);
       });
       c.execute();
     });
 
     should('work with throws assertion failures', function() {
-      var composite = new Context('SomeClass');
+      var composite = new Context('SomeClass 5');
       composite.addTestHandler(function() {
         assert.throws(function() {
           throw 'hello world';

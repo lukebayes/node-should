@@ -2,6 +2,7 @@ var sys = require('sys');
 var style = require('node_should/colored');
 
 var Printer = function() {
+  this.finishTimeoutId = null;
   this.colorized = true;
   this.contexts = [];
   this.errored = [];
@@ -23,23 +24,31 @@ var Printer = function() {
 Printer.prototype.addContext = function(context) {
   this.contexts.push(context);
   var self = this;
-  context.addListener('success', function(test) {
+  
+  var successHandler = function(test) {
     self._testSuccessHandler(test);
-  });
-  context.addListener('failure', function(test) {
-    self._testFailureHandler(test);
-  });
-  context.addListener('error', function(test) {
-    self._testErrorHandler(test);
-  });
-}
+  };
 
-Printer.prototype.removeContext = function(context) {
-  var index = this.contexts.indexOf(context);
-  this.contexts.splice(index, 1);
-  if (this.contexts.length == 0) {
-    this.finish();
-  }
+  var failureHandler = function(test) {
+    self._testFailureHandler(test);
+  };
+
+  var errorHandler = function(test) {
+    self._testErrorHandler(test);
+  };
+
+  var completeHandler = function(context) {
+    context.removeListener('success', successHandler);
+    context.removeListener('failure', failureHandler);
+    context.removeListener('error', errorHandler);
+    context.removeListener('complete', completeHandler);
+    self._contextCompleteHandler(context);
+  };
+
+  context.addListener('success', successHandler);
+  context.addListener('failure', failureHandler);
+  context.addListener('error', errorHandler);
+  context.addListener('complete', completeHandler);
 }
 
 Printer.prototype.start = function() {
@@ -66,6 +75,21 @@ Printer.prototype._testFailureHandler = function(assertionError) {
 
 Printer.prototype._testErrorHandler = function(error) {
   this._addError(error);
+}
+
+Printer.prototype._contextCompleteHandler = function(context) {
+  var index = this.contexts.indexOf(context);
+  this.contexts.splice(index, 1);
+
+  var self = this;
+  // Give the application one execution frame to add another
+  // context before auto-finishing.
+  clearTimeout(this.finishTimeoutId);
+  this.finishTimeoutId = setTimeout(function() {
+    if (self.contexts.length == 0) {
+      self.finish();
+    }
+  }, 0);
 }
 
 Printer.prototype.testIgnoreHandler = function(test, message) {
