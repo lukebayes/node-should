@@ -6,14 +6,13 @@ var vm = require('vm');
 var readEachFileMatching = require('node_should/util').readEachFileMatching;
 
 var DEFAULT_EXPRESSION = /_test.js$/;
-var DEFAULT_PATH       = './test';
+var DEFAULT_PATHS      = ['./test'];
 var DEFAULT_PRINTERS   = [new Printer()];
 
 var Runner = function() {
 }
 
 Runner.prototype.runFromTerminal = function(argv, printers, completeHandler) {
-  console.log("Running from term with: " + argv);
   argv.forEach(function(val, index, array) {
     console.log("val: " + val + " index: " + index);
     if (val == '-s' || val == '--source-path') {
@@ -24,19 +23,31 @@ Runner.prototype.runFromTerminal = function(argv, printers, completeHandler) {
       console.log("test name with: " + array[index+1]);
     }
   });
+  this.run();
 }
 
-Runner.prototype.run = function(expr, path, printers, completeHandler) {
+Runner.prototype.run = function(expr, paths, printers, completeHandler) {
   printers = (printers) ? printers : DEFAULT_PRINTERS;
   // start provided printers:
   printers.forEach(function(p) { p.start(); });
 
   expr = (expr) ? expr : DEFAULT_EXPRESSION;
-  path = (path) ? path : DEFAULT_PATH;
+  paths = (paths) ? paths : DEFAULT_PATHS;
+
+  this._addToLoadPath(paths);
+
   var self = this;
-  readEachFileMatching(expr, path, function(err, file, content) {
-    if (err) throw err;
-    self._runFileContent(file, content, printers, completeHandler);
+  paths.forEach(function(path) {
+    readEachFileMatching(expr, path, function(err, file, content) {
+      if (err) throw err;
+      self._runFileContent(file, content, printers, completeHandler);
+    });
+  });
+}
+
+Runner.prototype._addToLoadPath = function(paths) {
+  paths.forEach(function(path) {
+    require.paths.unshift(path);
   });
 }
 

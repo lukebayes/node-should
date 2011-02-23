@@ -89,7 +89,7 @@ Printer.prototype._contextCompleteHandler = function(context) {
     if (self.contexts.length == 0) {
       self.finish();
     }
-  }, 1);
+  }, 100);
 }
 
 Printer.prototype.testIgnoreHandler = function(test, message) {

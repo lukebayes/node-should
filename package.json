@@ -9,6 +9,13 @@
     "email" : "lbayes@patternpark.com",
     "url" : "http://lukebayes.com",
   },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/lukebayes/node-should",
+  },
+  "bin" : { "nodeshould" : "./cli.js" },
+  "directories" : ["src"],
   "main" : "node_should.js",
   "test" : "runner.js",
+  "engines" : { "node" : ">= 0.4.0" },
 }
