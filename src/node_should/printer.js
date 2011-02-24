@@ -89,7 +89,7 @@ Printer.prototype._contextCompleteHandler = function(context) {
     if (self.contexts.length == 0) {
       self.finish();
     }
-  }, 100);
+  }, 0);
 }
 
 Printer.prototype.testIgnoreHandler = function(test, message) {
@@ -185,6 +185,7 @@ Printer.prototype._printFinish = function() {
   this._printDuration();
   this._printSummary();
   this._printDurationDetails();
+  this._printInfo('\n');
 }
 
 Printer.prototype._printSummary = function() {

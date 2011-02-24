@@ -23,6 +23,7 @@ Runner.prototype.runFromTerminal = function(argv, printers, completeHandler) {
       console.log("test name with: " + array[index+1]);
     }
   });
+  // TODO(lbayes): Forward terminal params into the run command:
   this.run();
 }
 
