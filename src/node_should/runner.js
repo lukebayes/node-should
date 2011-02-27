@@ -3,7 +3,7 @@ var assert = require('node_should/assert');
 var Context = require('node_should/context').Context;
 var Printer = require('node_should/printer').Printer;
 var vm = require('vm');
-var readEachFileMatching = require('node_should/util').readEachFileMatching;
+var readEachFileMatching = require('fileutils').readEachFileMatching;
 
 var DEFAULT_EXPRESSION = /_test.js$/;
 var DEFAULT_PATHS      = ['./test'];
@@ -39,10 +39,19 @@ Runner.prototype.run = function(expr, paths, printers, completeHandler) {
 
   var self = this;
   paths.forEach(function(path) {
-    readEachFileMatching(expr, path, function(err, file, content) {
+    readEachFileMatching(expr, path, function(err, file, stat, content) {
       if (err) throw err;
       self._runFileContent(file, content, printers, completeHandler);
+    }, function(err) {
+      if (err) throw err;
+      self._finish(printers);
     });
+  });
+}
+
+Runner.prototype._finish = function(printers) {
+  printers.forEach(function(printer) {
+    printer.canFinish();
   });
 }
 

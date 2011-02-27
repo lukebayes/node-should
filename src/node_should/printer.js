@@ -2,6 +2,7 @@ var sys = require('sys');
 var style = require('node_should/colored');
 
 var Printer = function() {
+  this._canFinish = false;
   this.finishTimeoutId = null;
   this.colorized = true;
   this.contexts = [];
@@ -65,6 +66,10 @@ Printer.prototype.finish = function() {
   this.finished = true;
 }
 
+Printer.prototype.canFinish = function() {
+  this._canFinish = true;
+}
+
 Printer.prototype._testSuccessHandler = function(test) {
   this._addSuccess(test);
 }
@@ -81,15 +86,17 @@ Printer.prototype._contextCompleteHandler = function(context) {
   var index = this.contexts.indexOf(context);
   this.contexts.splice(index, 1);
 
-  var self = this;
-  // Give the application one execution frame to add another
-  // context before auto-finishing.
-  clearTimeout(this.finishTimeoutId);
-  this.finishTimeoutId = setTimeout(function() {
-    if (self.contexts.length == 0) {
-      self.finish();
-    }
-  }, 0);
+  if (this._canFinish) {
+    var self = this;
+    // Give the application one execution frame to add another
+    // context before auto-finishing.
+    clearTimeout(this.finishTimeoutId);
+    this.finishTimeoutId = setTimeout(function() {
+      if (self.contexts.length == 0) {
+        self.finish();
+      }
+    }, 0);
+  }
 }
 
 Printer.prototype.testIgnoreHandler = function(test, message) {
