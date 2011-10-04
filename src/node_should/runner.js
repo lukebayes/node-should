@@ -37,6 +37,8 @@ Runner.prototype.run = function(expr, paths, printers, completeHandler) {
 
   this._addToLoadPath(paths);
 
+  var pathCount = paths.length;
+  var pathSearchCount = 0;
   var self = this;
   paths.forEach(function(path) {
     readEachFileMatching(expr, path, function(err, file, stat, content) {
@@ -44,7 +46,10 @@ Runner.prototype.run = function(expr, paths, printers, completeHandler) {
       self._runFileContent(file, content, printers, completeHandler);
     }, function(err) {
       if (err) throw err;
-      self._finish(printers);
+      // Only 'finish' if all paths have been searched:
+      if (++pathSearchCount >= pathCount) {
+        self._finish(printers);
+      }
     });
   });
 }
