@@ -7,16 +7,16 @@
   "author" : {
     "name" : "Luke Bayes",
     "email" : "lbayes@patternpark.com",
-    "url" : "http://lukebayes.com",
+    "url" : "http://lukebayes.com"
   },
   "repository" : {
     "type" : "git",
-    "url" : "https://github.com/lukebayes/node-should",
+    "url" : "https://github.com/lukebayes/node-should"
   },
   "bin" : { "nodeshould" : "./cli.js" },
-  "dependencies" : { "fileutils" : ">= 0.0.1" },
   "directories" : ["src"],
   "main" : "node_should.js",
   "test" : "runner.js",
-  "engines" : { "node" : ">= 0.4.0" },
+  "engines" : { "node" : ">= 0.4.0" }
 }
+
