@@ -83,19 +83,20 @@ Printer.prototype._testErrorHandler = function(error) {
 }
 
 Printer.prototype._contextCompleteHandler = function(context) {
+  //console.log('Printer.contextCompleteHandler with: ' + this.contexts.length + ' contexts');
   var index = this.contexts.indexOf(context);
   this.contexts.splice(index, 1);
 
-  if (this._canFinish) {
+  if (this._canFinish && this.contexts.length == 0) {
     var self = this;
     // Give the application one execution frame to add another
-    // context before auto-finishing.
+    // context before fully finishing.
+    // 10ms works for me. If this isn't working properly, you'll
+    // see the result summary more than once.
     clearTimeout(this.finishTimeoutId);
     this.finishTimeoutId = setTimeout(function() {
-      if (self.contexts.length == 0) {
-        self.finish();
-      }
-    }, 0);
+      self.finish();
+    }, 10);
   }
 }
 

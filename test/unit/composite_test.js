@@ -105,7 +105,7 @@ context('A new Composite', function() {
   });
 
   context('with iterator', function() {
-    
+
     should('enumerate children', function() {
       var root = new Composite();
       var child = new Composite();
