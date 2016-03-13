@@ -1,15 +1,16 @@
-
-var assert = require('./assert');
 var Context = require('./context');
 var Printer = require('./printer');
+var assert = require('./assert');
 var eachFile = require('@lukebayes/each-file');
+var path = require('path');
 var vm = require('vm');
 
 var DEFAULT_EXPRESSION = /_test.js$/;
 var DEFAULT_PATHS      = ['./test'];
 var DEFAULT_PRINTERS   = [new Printer()];
 
-var Runner = function() {
+var Runner = function(opt_cwd) {
+  this._cwd = opt_cwd || process.cwd();
 }
 
 Runner.prototype.runFromTerminal = function(argv, printers, completeHandler) {
@@ -35,7 +36,8 @@ Runner.prototype.run = function(expr, paths, printers, completeHandler) {
   expr = (expr) ? expr : DEFAULT_EXPRESSION;
   paths = (paths) ? paths : DEFAULT_PATHS;
 
-  this._addToLoadPath(paths);
+  // TODO(lbayes): Remove if not needed
+  // this._addToLoadPath(paths);
 
   var pathCount = paths.length;
   var pathSearchCount = 0;
@@ -60,6 +62,7 @@ Runner.prototype._finish = function(printers) {
   });
 }
 
+// TODO(lbayes): Remove if not needed
 Runner.prototype._addToLoadPath = function(paths) {
   paths.forEach(function(path) {
     console.log('path:', path);
@@ -68,7 +71,6 @@ Runner.prototype._addToLoadPath = function(paths) {
 
 Runner.prototype._runFileContent = function(file, content, printers, completeHandler) {
   var scope = this._createScope(file, printers, completeHandler);
-  console.log('FILE:', file);
   vm.runInNewContext(content, scope, file);
 }
 
@@ -112,14 +114,7 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
   scope.assert = assert;
   scope.console = console;
   scope.global = scope;
-  scope.require =  function(path) {
-    console.log('CWD:', process.cwd());
-    console.log('REQUIRE:', path);
-    return require(path);
-
-    // return require(process.cwd() + '/test/' + path);
-  };
-  scope.root = root;
+  scope.require = require;
 
   scope.async = function() {
     return context.addAsyncHandler.apply(context, arguments);
