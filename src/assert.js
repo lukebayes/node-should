@@ -30,7 +30,7 @@ var pSlice = Array.prototype.slice;
 // AssertionError's when particular conditions are not met. The
 // assert module must conform to the following interface.
 
-var assert = exports;
+var assert = module.exports;
 
 // 2. The AssertionError is defined in assert.
 // new assert.AssertionError({ message: message,

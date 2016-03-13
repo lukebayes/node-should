@@ -1,7 +1,5 @@
-
-var Composite = require('node_should/composite').Composite;
-var LabelComposite = require('label_composite').LabelComposite;
-require('common');
+var Composite = require('../').Composite;
+var LabelComposite = require('./fakes/label_composite');
 
 context('A new Composite', function() {
 

@@ -1,8 +1,7 @@
-
-require('common');
-var Printer = require('node_should').Printer;
-var Context = require('node_should').Context;
-var FakePrinter = require('fake_printer').FakePrinter;
+var Printer = require('../').Printer;
+var Context = require('../').Context;
+var FakePrinter = require('./fakes/fake_printer');
+var assert = require('../').assert;
 
 context('printer', function() {
 
@@ -75,7 +74,7 @@ context('printer', function() {
     p.start();
     try {
       assert.fail(null, 'fake actual value', 'fake expected value', '!=', 'foo');
-    } catch (failure) { 
+    } catch (failure) {
       p._testFailureHandler({failure: failure});
     }
     p.finish();
@@ -147,7 +146,7 @@ context('printer', function() {
     p._testFailureHandler();
     p._testFailureHandler();
 
-    p._testErrorHandler(); 
+    p._testErrorHandler();
     p._testSuccessHandler();
     p.finish();
 
@@ -242,7 +241,7 @@ context('printer', function() {
     p._testSuccessHandler();
     p._testSuccessHandler();
     p.finish();
-    
+
     var message = p.out.message;
     //console.log(message);
 

@@ -1,5 +1,4 @@
-
-var Composite = require('node_should/composite').Composite;
+var Composite = require('../').Composite;
 var util = require('util');
 
 var LabelComposite = function(label) {
@@ -21,5 +20,5 @@ LabelComposite.prototype.toString = function() {
   return '[LabelComposite label="' + this.getLabel() + '"]';
 }
 
-exports.LabelComposite = LabelComposite;
+module.exports = LabelComposite;
 

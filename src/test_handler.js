@@ -35,4 +35,4 @@ TestHandler.prototype.asyncHandlerCount = function() {
   return this.asyncHandlers.length;
 }
 
-exports.TestHandler = TestHandler;
+module.exports = TestHandler;

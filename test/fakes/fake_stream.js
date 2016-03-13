@@ -14,4 +14,4 @@ FakeStream.prototype.write = function(message) {
   this.message += message;
 }
 
-exports.FakeStream = FakeStream;
+module.exports = FakeStream;

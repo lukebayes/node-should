@@ -4,9 +4,7 @@
  *
  *     node runner.js
  */
-require.paths.unshift('src');
-require.paths.unshift('test');
+var nodeShould = require('./');
+var instance = new nodeShould.Runner();
+instance.run();
 
-var Runner = require('node_should').Runner;
-var runner = new Runner();
-runner.run();

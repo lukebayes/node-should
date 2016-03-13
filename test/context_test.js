@@ -1,6 +1,4 @@
-
-var Context = require('node_should/context').Context;
-require('common');
+var Context = require('../').Context;
 
 context('A new Context', function() {
 
@@ -33,7 +31,7 @@ context('A new Context', function() {
 
       assert.equal('SomeClass 6 with child', child1.getLabel());
     });
-    
+
     should('build from composite, ignoring null child labels', function() {
       var root = new Context('SomeClass 8');
       var child1 = new Context();
@@ -151,7 +149,7 @@ context('A new Context', function() {
       });
       c.execute();
 
-      var expected = ['setup', 'test', 'teardown']; 
+      var expected = ['setup', 'test', 'teardown'];
       assert.equal(expected.length, executed.length);
       assert.equal(expected[0], executed[0]);
       assert.equal(expected[1], executed[1]);

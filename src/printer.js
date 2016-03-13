@@ -1,5 +1,5 @@
 var sys = require('sys');
-var style = require('node_should/colored');
+var style = require('./colored');
 
 var Printer = function() {
   this._canFinish = false;
@@ -17,7 +17,7 @@ var Printer = function() {
   this.succeeded = [];
   this.tests = []
 
-  // This value can be turned off for a more 
+  // This value can be turned off for a more
   // terse test summary:
   this.showDurationDetails = true;
 }
@@ -25,7 +25,7 @@ var Printer = function() {
 Printer.prototype.addContext = function(context) {
   this.contexts.push(context);
   var self = this;
-  
+
   var successHandler = function(test) {
     self._testSuccessHandler(test);
   };
@@ -313,4 +313,4 @@ Printer.prototype._printDurationDetails = function() {
   }
 }
 
-exports.Printer = Printer;
+module.exports = Printer;

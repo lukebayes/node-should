@@ -1,9 +1,9 @@
 
-var assert = require('node_should/assert');
-var Context = require('node_should/context').Context;
-var Printer = require('node_should/printer').Printer;
+var assert = require('./assert');
+var Context = require('./context');
+var Printer = require('./printer');
+var eachFile = require('@lukebayes/each-file');
 var vm = require('vm');
-var readEachFileMatching = require('fileutils').readEachFileMatching;
 
 var DEFAULT_EXPRESSION = /_test.js$/;
 var DEFAULT_PATHS      = ['./test'];
@@ -41,7 +41,7 @@ Runner.prototype.run = function(expr, paths, printers, completeHandler) {
   var pathSearchCount = 0;
   var self = this;
   paths.forEach(function(path) {
-    readEachFileMatching(expr, path, function(err, file, stat, content) {
+    eachFile.matchingRead(expr, path, function(err, file, stat, content) {
       if (err) throw err;
       self._runFileContent(file, content, printers, completeHandler);
     }, function(err) {
@@ -62,17 +62,18 @@ Runner.prototype._finish = function(printers) {
 
 Runner.prototype._addToLoadPath = function(paths) {
   paths.forEach(function(path) {
-    require.paths.unshift(path);
+    console.log('path:', path);
   });
 }
 
 Runner.prototype._runFileContent = function(file, content, printers, completeHandler) {
   var scope = this._createScope(file, printers, completeHandler);
+  console.log('FILE:', file);
   vm.runInNewContext(content, scope, file);
 }
 
 /**
- * This method creates a new scope object that will be handed to 
+ * This method creates a new scope object that will be handed to
  * vm.runInNewScope.
  *
  * The named entities that are available on the returned scope wiil be
@@ -111,7 +112,13 @@ Runner.prototype._createScope = function(file, printers, completeHandler) {
   scope.assert = assert;
   scope.console = console;
   scope.global = scope;
-  scope.require =  require;
+  scope.require =  function(path) {
+    console.log('CWD:', process.cwd());
+    console.log('REQUIRE:', path);
+    return require(path);
+
+    // return require(process.cwd() + '/test/' + path);
+  };
   scope.root = root;
 
   scope.async = function() {
@@ -142,5 +149,5 @@ Runner.prototype._addContextToPrinters = function(printers, context) {
   });
 }
 
-exports.Runner = Runner;
+module.exports = Runner;
 

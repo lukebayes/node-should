@@ -1,7 +1,7 @@
 
-var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
-var Composite = require('node_should/composite').Composite;
-var TestHandler = require('node_should/test_handler').TestHandler;
+var ArrayIterator = require('./array_iterator');
+var Composite = require('./composite');
+var TestHandler = require('./test_handler');
 var util = require('util');
 
 var Context = function(label) {
@@ -258,7 +258,7 @@ Context.prototype._callHandler = function(handlerData, options) {
           //e = new e.constructor(failureLabel + '\n' + e);
         }
       }
-      
+
       handlerData.error = e
       this._onError(handlerData);
     } else {
@@ -334,4 +334,5 @@ Context.prototype.toString = function() {
   return '[Context label=' + this.getLabel() + ']';
 }
 
-exports.Context = Context;
+module.exports = Context;
+

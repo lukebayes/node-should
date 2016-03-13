@@ -1,6 +1,5 @@
-require('common');
-var Runner = require('node_should/runner').Runner;
-var FakePrinter = require('fake_printer').FakePrinter;
+var Runner = require('../').Runner;
+var FakePrinter = require('./fakes/fake_printer');
 
 context('A new Runner', function() {
 

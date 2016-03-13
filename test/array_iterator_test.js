@@ -1,6 +1,5 @@
 
-require('common');
-var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
+var ArrayIterator = require('../').ArrayIterator;
 
 context('ArrayIterator', function() {
 

@@ -1,8 +1,8 @@
-var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
-var Stack = require('node_should/stack').Stack;
+var ArrayIterator = require('./array_iterator').ArrayIterator;
+var Stack = require('./stack').Stack;
 
 /**
- * Composite Iterator enables synchronous or asynchronous, depth-first 
+ * Composite Iterator enables synchronous or asynchronous, depth-first
  * traversal of a tree structure of any size or depth.
  */
 var CompositeIterator = function(composite) {
@@ -33,4 +33,4 @@ CompositeIterator.prototype.hasNext = function() {
   return !this.iteratorStack.isEmpty();
 }
 
-exports.CompositeIterator = CompositeIterator;
+module.exports = CompositeIterator;

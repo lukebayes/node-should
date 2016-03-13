@@ -20,4 +20,4 @@ Stack.prototype.peek = function() {
   return this._items[this._items.length - 1];
 }
 
-exports.Stack = Stack;
+module.exports = Stack;

@@ -1,7 +1,7 @@
 
 var util = require('util');
-var Printer = require('node_should/printer').Printer;
-var FakeStream = require('fake_stream').FakeStream;
+var Printer = require('../').Printer;
+var FakeStream = require('./fake_stream');
 
 /**
  * FakePrinter is used to prevent tests from broadcasting their results to std

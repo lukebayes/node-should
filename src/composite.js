@@ -1,5 +1,5 @@
-var ArrayIterator = require('node_should/array_iterator').ArrayIterator;
-var CompositeIterator = require('node_should/composite_iterator').CompositeIterator;
+var ArrayIterator = require('./array_iterator').ArrayIterator;
+var CompositeIterator = require('./composite_iterator').CompositeIterator;
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -53,6 +53,6 @@ Composite.prototype.toString = function() {
   return '[Composite]';
 }
 
-exports.Composite = Composite;
+module.exports = Composite;
 
 
