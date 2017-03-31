@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+var nodeShould = require('../');
+var runner = new nodeShould.Runner();
+
+runner.runFromTerminal(process.argv.slice(2));
+
